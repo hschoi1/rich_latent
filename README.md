@@ -6,11 +6,11 @@ Ensemble of VAEs for detecting out of distribution (OOD) samples
 
 ## Variational Autoencoder
 
-![alt text](https://github.com/hschoi1/rich_latent/tree/master/adv/model.jpg)
+![](adv/model.jpg?raw=true)
 
 Take an input from the data space, map it into a distribution (posterior) in the latent space, sample from the posterior distribution, and decode it back to an output in the data space.
 
-Unlike the regular VAE, we used Normalizing Flows for a richer prior.
+Unlike in the regular VAE, we used Normalizing Flows for a richer prior.
 
 
 ## Out of Distribution Samples
@@ -18,20 +18,19 @@ Unlike the regular VAE, we used Normalizing Flows for a richer prior.
 These are reconstructed inputs for adversarially perturbed input (second row) and adversarially perturbed random noise (third row)
 Both are created by the Fast Gradient Method.
 
-![alt text](https://github.com/hschoi1/rich_latent/tree/master/adv/adversarial.png)
+![](adv/adversarial.png)?raw=true)
 
 This is the latent space for normal digits
 
-![alt text](https://github.com/hschoi1/rich_latent/tree/master/adv/normal.png)
+![](adv/normal.png)?raw=true)
 
 This is the latent space for adversarially perturbed input.
 
-![alt text](https://github.com/hschoi1/rich_latent/tree/master/adv/perturbed_input_latent.png)
+![](adv/perturbed_input_latent.png)?raw=true)
 
 This is the latent space for adversarially perturbed random noise.
 
-![alt text](https://github.com/hschoi1/rich_latent/tree/master/adv/perturbed_random_noise_latent.png)
-
+![](adv/perturbed_random_noise_latent.png)?raw=true)
 
 ## Anomaly Detection
 
@@ -47,7 +46,7 @@ Which threshold to use for unsupervised learning?
 ## Ensemble Learning
 The ensemble statistics will serve as proper threshold variables
 
-![alt text](https://github.com/hschoi1/rich_latent/tree/master/adv/iwae_vs_ensemble_var.png)
+![](adv/iwae_vs_ensemble_var.png)?raw=true)
 
 Using the ensemble variance of posterior means, we achieved AUROC = 0.927 and AP Score = 0.940
 
