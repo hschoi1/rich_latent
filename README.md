@@ -22,7 +22,7 @@ Both are created by the Fast Gradient Method.
 
 This is the latent space for normal digits
 
-![](adv/normal.png)?raw=true)
+![](adv/normal_latent.png)?raw=true)
 
 This is the latent space for adversarially perturbed input.
 
