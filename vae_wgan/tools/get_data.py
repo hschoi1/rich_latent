@@ -92,8 +92,7 @@ def build_eval_multiple_datasets(dataset_list, batch_size, expand_last_dim=False
     eval_dataset = eval_dataset.batch(batch_size)
 
     eval_input_fn = lambda: eval_dataset.make_one_shot_iterator().get_next()
-    # for glow
-    #return np.concatenate(x_test_list, axis=0)
+
     return eval_input_fn
 
 
@@ -102,8 +101,10 @@ def build_eval_helper(dataset, expand_last_dim=False, noised=False, noise_type='
     if dataset in ['uniform_noise', 'normal_noise']:
         if dataset == 'uniform_noise':
             x_test = np.random.uniform(low=0., high=1., size=(1000, *feature_shape)).astype("float32")
+            x_test = 255. * x_test # will be divided by 255. later
         elif dataset == 'normal_noise':
             x_test = np.random.normal(loc=0., scale=1., size=(1000, *feature_shape)).astype("float32")
+            x_test = 255. * x_test
 
     elif dataset == 'notMNIST':
         loaded = np.fromfile(file='data/t10k-images-idx3-ubyte', dtype=np.uint8)
@@ -122,17 +123,19 @@ def build_eval_helper(dataset, expand_last_dim=False, noised=False, noise_type='
     else:
         _, (x_test, _) = dataset.load_data()
 
-    if expand_last_dim:
-        x_test = np.expand_dims(x_test, axis=-1)
+
 
     choice = np.random.choice(x_test.shape[0],1000)
     x_test = x_test[choice]
     x_test = x_test.astype(np.float32) / 255.
 
+    if expand_last_dim:
+        x_test = np.expand_dims(x_test, axis=-1)
+
     image_shape = x_test.shape[1:]
     if noised:
         if noise_type == 'normal':
-            noise = np.random.normal(loc=0, scale=1, size=(1000, *image_shape)).astype("float32")
+            noise = np.random.normal(loc=0., scale=1., size=(1000, *image_shape)).astype("float32")
         elif noise_type == 'uniform':
             noise = np.random.uniform(low=0., high=1., size=(1000, *image_shape)).astype("float32")
         elif noise_type == 'brighten':

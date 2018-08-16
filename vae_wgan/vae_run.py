@@ -134,7 +134,7 @@ def main(argv):
     # if perturbed normal noise: normal, if perturbed uniform noise: uniform , if nothing: None
     show_adv_examples = None
     #if there is a specific range to look at, add a tuple of (low, high, #of bins) for the value
-    bins = {'elbo':(-20000,1000,500)}
+    bins = {'elbo':(-2000,1000,300)}
    
     #out of the 5 models, which model to use for analysis
     which_model = 0

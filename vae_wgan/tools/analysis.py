@@ -1,6 +1,6 @@
 from absl import flags
 from tools.get_data import *
-import tools.statistics
+from tools.statistics import *
 import matplotlib.pyplot as plt
 plt.switch_backend('agg')
 flags = tf.app.flags
@@ -28,13 +28,16 @@ def fetch(input_fn, model_fn, model_dir, keys,  i):
     tuples = []
 
     for key in keys:
-        if batch_results_[0][key].shape[-1] == 1 or batch_results_[0][key].shape[-1] == 3:
+        if batch_results_[0][key].shape[-1] in [1, 3]:
             each_key = np.concatenate([b[key] for b in batch_results_], axis=0)
         else:
-            each_key = np.concatenate([b[key].T for b in batch_results_], axis=0)
-            each_key = np.sum(each_key, axis=1)
-        tuples.append(each_key)
+            if key in ['approx_posterior_mean', 'approx_posterior_stddev']:
+                each_key = np.concatenate([b[key] for b in batch_results_], axis=0)
+            else:
+                each_key = np.concatenate([b[key].T for b in batch_results_], axis=0)
+            each_key = np.mean(each_key, axis=1)
 
+        tuples.append(each_key)
     return tuples
 
 
@@ -179,26 +182,38 @@ def compare_elbo(datasets, expand_last_dim,  noised_list, noise_type_list, batch
     M = 5
     f, axes = plt.subplots(1, 2, figsize=(10, 5))
 
-    keys = ['elbo']
+    keys = ['elbo', 'approx_posterior_mean', 'approx_posterior_stddev']
     ensemble_elbos = []
+    ensemble_posterior_means = []
+    ensemble_posterior_vars = []
 
     for i in range(5,10):
-        single_elbo, datasets_names = analysis_helper(datasets, expand_last_dim,  noised_list, noise_type_list, False,
+        single_results, datasets_names = analysis_helper(datasets, expand_last_dim,  noised_list, noise_type_list, False,
                                                  model_fn,model_dir, i, i, keys)
-        single_elbo = single_elbo[0]
+        single_elbo = single_results[0]
+        single_posterior_mean = single_results[1]
+        single_posterior_var = single_results[2]
         ensemble_elbos.append(single_elbo)
+        ensemble_posterior_means.append(single_posterior_mean)
+        ensemble_posterior_vars.append(single_posterior_var)
 
-    bin_range = (-25000, 10000)
-    bins = 350
+    ensemble_results = vae_ensemble_statistics(ensemble_elbos, ensemble_posterior_means, ensemble_posterior_vars)
+    ensemble_keys = ['ensemble_elbo_mean', 'ensemble_elbo_var', 'ensemble_posterior_means_mean',
+            'ensemble_posterior_means_var', 'ensemble_posterior_vars_mean', 'ensemble_posterior_vars_var']
+    from tools.statistics import plot_analysis
+    plot_analysis(ensemble_results, datasets_names, ensemble_keys)
+
+
+    bin_range = (-2000, 1000)
+    bins = 300
     for i in range(len(datasets)):
         label = datasets_names[i]
         axes[0].hist(single_elbo[1000*i:1000*(i+1)], label=label, alpha=0.5, bins=bins, range=bin_range)
 
     # elbo of the last model
     # get ensemble var
-    
-    ensemble_elbos = np.array(ensemble_elbos)
-    ensemble_var = np.var(ensemble_elbos, axis=0)
+
+    ensemble_var = ensemble_results[1]
 
     # scatter plot of single elbo vs enesmble variance on each dataset
     for i in range(len(datasets)):
@@ -218,7 +233,7 @@ def compare_elbo(datasets, expand_last_dim,  noised_list, noise_type_list, batch
         axes[0].hist(single_adv_uniform_elbo, label='adversarial uniform noise', alpha=0.5, bins=100,
                      range=bin_range)
 
-        # get ensemble var
+        # get ensemble var for adversarial examples
         adv_normal_ensemble_var = np.var(adversarial_normal_noise_ensemble, axis=0)
         adv_uniform_ensemble_var = np.var(adversarial_uniform_noise_ensemble, axis=0)
 
@@ -234,7 +249,7 @@ def compare_elbo(datasets, expand_last_dim,  noised_list, noise_type_list, batch
     axes[1].set_xlabel('ELBO of single model')
     axes[1].set_ylabel('ensemble variance')
 
-    top = 1500000
+    top = 40000
     axes[1].set_xlim(bin_range)
     axes[1].set_ylim(bottom=0, top=top)
     axes[1].legend()
@@ -242,6 +257,32 @@ def compare_elbo(datasets, expand_last_dim,  noised_list, noise_type_list, batch
     plt.show()
     f.savefig("elbo")
 
+
+def vae_ensemble_statistics(ensemble_elbos, ensemble_posterior_means, ensemble_posterior_vars):
+
+    ensemble_elbos = np.array(ensemble_elbos)
+    ensemble_elbo_mean = np.mean(ensemble_elbos, axis=0)
+    ensemble_elbo_var = np.var(ensemble_elbos, axis=0)
+
+    ensemble_posterior_means = np.array(ensemble_posterior_means)
+    ensemble_posterior_means_mean = np.mean(ensemble_posterior_means, axis=0)
+    ensemble_posterior_means_var = np.var(ensemble_posterior_means, axis=0)
+
+    ensemble_posterior_vars = np.array(ensemble_posterior_vars)
+    ensemble_posterior_vars_mean = np.mean(ensemble_posterior_vars, axis=0)
+    ensemble_posterior_vars_var = np.var(ensemble_posterior_vars, axis=0)
+
+    dics = {'ensemble_elbo_mean': ensemble_elbo_mean,
+            'ensemble_elbo_var': ensemble_elbo_var,
+            'ensemble_posterior_means_mean': ensemble_posterior_means_mean,
+            'ensemble_posterior_means_var': ensemble_posterior_means_var,
+            'ensemble_posterior_vars_mean': ensemble_posterior_vars_mean,
+            'ensemble_posterior_vars_var': ensemble_posterior_vars_var}
+
+    results = [ensemble_elbo_mean, ensemble_elbo_var, ensemble_posterior_means_mean,
+               ensemble_posterior_means_var, ensemble_posterior_vars_mean, ensemble_posterior_vars_var]
+
+    return results
 
 
 

@@ -142,30 +142,19 @@ def ensemble_analysis(eval_input_fn, name):
         )
 
         batch_results_ = list(estimator.predict(eval_input_fn,
-                                                predict_keys=['elbo_local_mean', 'sigmoid', 'approx_posterior_mean',
+                                                predict_keys=['elbo_local_mean', 'approx_posterior_mean',
                                                               'approx_posterior_stddev']))
         elbo_local_mean = np.array([b['elbo_local_mean'] for b in batch_results_])
-        mean = np.array([b['approx_posterior_mean'] for b in batch_results_])
-        stddev = np.array([b['approx_posterior_stddev'] for b in batch_results_])
+        mean = np.array([b['approx_posterior_mean'].T for b in batch_results_])
+        mean = np.mean(mean, axis=1)  # average over 16 samples
+        stddev = np.array([b['approx_posterior_stddev'].T for b in batch_results_])
+        stddev = np.mean(stddev, axis=1)  # average over 16 samples
         ensemble_elbos.append(elbo_local_mean)
         ensemble_posterior_means.append(mean)
         ensemble_posterior_vars.append(stddev ** 2)
 
 
-    ensemble_elbos = np.array(ensemble_elbos)
-    ensemble_posterior_means = np.array(ensemble_posterior_means)
-    ensemble_posterior_vars = np.array(ensemble_posterior_vars)
-    ensemble_elbo_mean = np.mean(ensemble_elbos, axis=0)
-    ensemble_elbo_var = np.var(ensemble_elbos, axis=0)
-    ensemble_posterior_means_mean = np.mean(np.mean(ensemble_posterior_means, axis=2), axis=0)
-    ensemble_posterior_means_var = np.var(np.mean(ensemble_posterior_means, axis=2), axis=0)
-    ensemble_posterior_vars_mean = np.mean(np.mean(ensemble_posterior_vars, axis=2), axis=0)
-    ensemble_posterior_vars_var = np.var(np.mean(ensemble_posterior_vars, axis=2), axis=0)
-    truth = np.concatenate([np.zeros(492), np.ones(492)])
 
-    dics = {'elbo_local_mean':elbo_local_mean, 'ensemble_elbo_mean':ensemble_elbo_mean,'ensemble_elbo_var':ensemble_elbo_var,
-            'ensemble_posterior_means_mean':ensemble_posterior_means_mean, 'ensemble_posterior_means_var':ensemble_posterior_means_var,
-            'ensemble_posterior_vars_mean':ensemble_posterior_vars_mean, 'ensemble_posterior_vars_var':ensemble_posterior_vars_var}
     bins = {'elbo_local_mean': (-50.0, 50.0, 100), 'ensemble_elbo_mean': (-50.0, 50.0, 100),
             'ensemble_elbo_var': (0.0, 200, 200),
             'ensemble_posterior_means_mean': (-0.6, 0.4, 100), 'ensemble_posterior_means_var': (0, 0.5, 100),
@@ -173,11 +162,13 @@ def ensemble_analysis(eval_input_fn, name):
 
     keys = ['elbo_local_mean','ensemble_elbo_mean','ensemble_elbo_var','ensemble_posterior_means_mean',
             'ensemble_posterior_means_var','ensemble_posterior_vars_mean', 'ensemble_posterior_vars_var']
-    results = [elbo_local_mean, ensemble_elbo_mean, ensemble_elbo_var, ensemble_posterior_means_mean,
-               ensemble_posterior_means_var, ensemble_posterior_vars_mean, ensemble_posterior_vars_var]
 
-
+    results = [elbo_local_mean]
+    # get all 6 ensemble statistics
+    results += vae_ensemble_statistics(ensemble_elbos, ensemble_posterior_means, ensemble_posterior_vars)
+    # plot and evaluate AUROC,AP and FPRat95TPR score for all 7 threshold variables
     plot_analysis(results, ['valid', name], keys, bins=bins, each_size=492)
+
 
 if __name__ == "__main__":
     tf.app.run()

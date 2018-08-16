@@ -5,9 +5,15 @@ matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from sklearn.metrics import average_precision_score, roc_auc_score
+from sklearn.metrics import roc_curve, average_precision_score, roc_auc_score
 from tools.analysis import *
 
+
+def FPRat95TPR(labels, predictions):
+    fprs, tprs, thresholds = roc_curve(y_true=labels, y_score=predictions, drop_intermediate=False)
+    for i in range(len(tprs)-1):
+        if (tprs[i] < 0.95) and (tprs[i+1] >= 0.95):
+            return fprs[i+1]
 
 def TFstatistics(labels, predictions):
     TP = 0
@@ -57,7 +63,7 @@ def analysis_helper(compare_datasets, expand_last_dim, noised_list, noise_type_l
     results = fetch(input_fn, model_fn, model_dir, keys, which_model)
 
     if show_adv_examples is not None:
-        adv_normal, adv_uniform = adversarial_fetch(get_eval_dataset(compare_datasets[0], 50), 50, model_fn,
+        adv_normal, adv_uniform = adversarial_fetch(get_eval_dataset(compare_datasets[0], 100), 100, model_fn,
                                                     model_dir, keys, which_model, adv_apply)
 
         if show_adv_examples == 'normal':
@@ -112,7 +118,9 @@ def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
             predictions = np.concatenate([value[:each_size], value[each_size * index:each_size * (index + 1)]])
             auroc_score = roc_auc_score(y_true=truth, y_score=predictions)
             ap_score = average_precision_score(y_true=truth, y_score=predictions)
-            print(datasets_names[index], "using", keys[i], ",  AUROC: ", str(auroc_score)[:6], "  AP: ", str(ap_score)[:6])
+            fpr_at_95tpr = FPRat95TPR(truth, predictions)
+            print(datasets_names[index], "using", keys[i], ",  AUROC: ", str(auroc_score)[:6], "  AP: ", str(ap_score)[:6],
+                  "FPR@95%TPR: ", fpr_at_95tpr)
         last_axis.set_xlabel(keys[i])
         last_axis.legend()
 
