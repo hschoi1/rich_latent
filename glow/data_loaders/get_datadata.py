@@ -101,9 +101,9 @@ def build_eval_helper(dataset, expand_last_dim=False, noised=False, noise_type='
 
     if dataset in ['uniform_noise', 'normal_noise']:
         if dataset == 'uniform_noise':
-            x_test = np.random.uniform(low=0., high=1., size=(1000, *feature_shape)).astype("float32")
+            x_test = np.random.uniform(low=0., high=255., size=(1000, *feature_shape)).astype("float32")
         elif dataset == 'normal_noise':
-            x_test = np.random.normal(loc=0., scale=1., size=(1000, *feature_shape)).astype("float32")
+            x_test = np.random.normal(loc=0., scale=255., size=(1000, *feature_shape)).astype("float32")
 
     elif dataset == 'notMNIST':
         loaded = np.fromfile(file='t10k-images-idx3-ubyte', dtype=np.uint8)

@@ -119,8 +119,8 @@ def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
             auroc_score = roc_auc_score(y_true=truth, y_score=predictions)
             ap_score = average_precision_score(y_true=truth, y_score=predictions)
             fpr_at_95tpr = FPRat95TPR(truth, predictions)
-            print(datasets_names[index], "using", keys[i], ",  AUROC: ", str(auroc_score)[:6], "  AP: ", str(ap_score)[:6],
-                  "FPR@95%TPR: ", fpr_at_95tpr)
+            print(datasets_names[index], " using ", keys[i], ",  AUROC: ", str(auroc_score)[:6], "  AP: ", str(ap_score)[:6],
+                  " FPR@95%TPR: ", fpr_at_95tpr)
         last_axis.set_xlabel(keys[i])
         last_axis.legend()
 
