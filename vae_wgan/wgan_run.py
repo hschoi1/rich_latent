@@ -24,14 +24,8 @@ FLAGS = tf.flags.FLAGS
 flags.DEFINE_bool(
     'noise_to_input',default=False, help="whether to add noise to training data")
 
-flags.DEFINE_float(
-    "learning_rate", default=0.001, help="Initial learning rate.")
 flags.DEFINE_integer(
-    "max_steps", default=5001, help="Number of training steps to run.")
-flags.DEFINE_integer(
-    "latent_size",
-    default=16,
-    help="Number of dimensions in the latent code (z).")
+    "max_steps", default=20001, help="Number of training steps to run.")
 flags.DEFINE_integer(
     "z_dim", default=128, help="dimension of latent z")
 flags.DEFINE_integer("base_depth", default=32, help="Base depth for layers.")
@@ -41,32 +35,11 @@ flags.DEFINE_string(
     help="Activation function for all hidden layers.")
 flags.DEFINE_integer(
     "batch_size",
-    default=32,
+    default=64,
     help="Batch size.")
 flags.DEFINE_integer(
     "n_samples", default=16, help="Number of samples to use in encoding.")
-flags.DEFINE_bool(
-    "use_NF",
-    default = True,
-    help = "If False, normalizing flows are not applied")
-flags.DEFINE_integer(
-    "mixture_components",
-    default=100,
-    help="Number of mixture components to use in the prior. Each component is "
-         "a diagonal normal distribution. The parameters of the components are "
-         "intialized randomly, and then learned along with the rest of the "
-         "parameters. If `analytic_kl` is True, `mixture_components` must be "
-         "set to `1`.")
-flags.DEFINE_integer("n_flows", default=6, help="Number of Normalizing Flows")
-flags.DEFINE_float("elbo_threshold", default=5.0, help="anomaly threshold for whole elbo")
-flags.DEFINE_bool(
-    "analytic_kl",
-    default=False,
-    help="Whether or not to use the analytic version of the KL. When set to "
-         "False the E_{Z~q(Z|X)}[log p(Z)p(X|Z) - log q(Z|X)] form of the ELBO "
-         "will be used. Otherwise the -KL(q(Z|X) || p(Z)) + "
-         "E_{Z~q(Z|X)}[log p(X|Z)] form will be used. If analytic_kl is True, "
-         "then you must also specify `mixture_components=1`.")
+
 flags.DEFINE_float(
     "learning_rate_ger",
     default=5e-5,
@@ -180,17 +153,20 @@ def main(argv):
 
     # keys are threshold variables
     keys = ['true_logit']
-    compare_datasets= ['mnist', 'mnist', 'mnist', 'mnist', 'mnist']
+    compare_datasets = ['mnist', 'mnist', 'mnist', 'mnist', 'mnist', 'mnist', 'notMNIST', 'fashion_mnist',
+                        'fashion_mnist', 'normal_noise', 'uniform_noise']
     # whether to noise each dataset or not
-    noised_list = [False, True, True, True, True]
+    noised_list = [False, True, True, True, True, True, False, False, True, False, False]
     # if the element in noised_list is true for a dataset then what kind of noise/transformations to apply?
-     # if the above element is set False, any noise/transformation will not be processed.
+    # if the above element is set False, any noise/transformation will not be processed.
 
-    noise_type_list = ['normal', 'normal', 'brighten', 'hor_flip', 'ver_flip']
- 
+    noise_type_list = ['normal', 'normal', 'uniform', 'brighten', 'hor_flip', 'ver_flip', 'normal', 'normal', 'normal',
+                       'normal', 'normal']
+
     # whether to add adversarially perturbed noise
     # if perturbed normal noise: normal, if perturbed uniform noise: uniform , if nothing: None
-    show_adv_examples = None
+    show_adv_examples = 'normal'
+
     #if there is a specific range to look at, add a tuple of (low, high, #of bins) for the value
     bins = {'true_logit':(-5,5,100)}
 

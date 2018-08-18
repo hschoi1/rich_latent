@@ -103,7 +103,7 @@ def adversarial_ensemble_fetch(base, batch_size, model_fn, model_dir, keys, base
     adversarial_normal_noise_ensemble = []
     adversarial_uniform_noise_ensemble = []
     M = 5
-    for i in range(M,10):
+    for i in range(M):
         adversarial_normal_noise_results, adversarial_uniform_noise_results = adversarial_fetch(eval_input_fn,
                                                                                 batch_size, model_fn, model_dir, keys, base_model, i)
 
@@ -121,7 +121,7 @@ def compare_critic_preds(datasets, expand_last_dim, noised_list, noise_type_list
     keys = ['true_logit']
     ensemble_logits = []
     from tools.statistics import analysis_helper
-    for i in range(M, 10):
+    for i in range(M):
         single_logit, datasets_names = analysis_helper(datasets, expand_last_dim, noised_list, noise_type_list, False,
                                                       model_fn, model_dir, i, i, keys)
         single_logit = single_logit[0][:, 0]  # remove meaningless dim
@@ -206,7 +206,7 @@ def compare_elbo(datasets, expand_last_dim,  noised_list, noise_type_list, batch
     ensemble_posterior_means = []
     ensemble_posterior_vars = []
 
-    for i in range(5,10):
+    for i in range(M):
         single_results, datasets_names = analysis_helper(datasets, expand_last_dim,  noised_list, noise_type_list, False,
                                                  model_fn,model_dir, i, i, keys)
         single_elbo = single_results[0]

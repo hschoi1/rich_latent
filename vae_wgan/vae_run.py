@@ -122,17 +122,20 @@ def main(argv):
 
     # keys are threshold variables
     keys = ['elbo']
-    compare_datasets= ['mnist', 'fashion_mnist', 'notMNIST', 'normal_noise', 'uniform_noise']
+    compare_datasets = ['mnist', 'mnist', 'mnist', 'mnist', 'mnist', 'mnist', 'notMNIST', 'fashion_mnist',
+                        'fashion_mnist', 'normal_noise', 'uniform_noise']
     # whether to noise each dataset or not
-    noised_list = [False, False, False, False, False]
+    noised_list = [False, True, True, True, True, True, False, False, True, False, False]
     # if the element in noised_list is true for a dataset then what kind of noise/transformations to apply?
-     # if the above element is set False, any noise/transformation will not be processed.
+    # if the above element is set False, any noise/transformation will not be processed.
 
-    noise_type_list = ['normal', 'normal', 'normal', 'normal','normal']
- 
+    noise_type_list = ['normal', 'normal', 'uniform', 'brighten', 'hor_flip', 'ver_flip', 'normal', 'normal', 'normal',
+                       'normal', 'normal']
+
     # whether to add adversarially perturbed noise
     # if perturbed normal noise: normal, if perturbed uniform noise: uniform , if nothing: None
-    show_adv_examples = None
+    show_adv_examples = 'normal'
+
     #if there is a specific range to look at, add a tuple of (low, high, #of bins) for the value
     bins = {'elbo':(-2000,1000,300)}
    
