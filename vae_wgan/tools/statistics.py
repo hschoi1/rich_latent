@@ -68,17 +68,15 @@ def analysis_helper(compare_datasets, expand_last_dim, noised_list, noise_type_l
 
         if show_adv_examples == 'normal':
             datasets_names.append('adv normal noise')
-            adv_normal = [adv_normal]
             results = np.concatenate([results, adv_normal], axis=1)
         elif show_adv_examples == 'uniform':
             datasets_names.append('adv uniform noise')
-            adv_uniform = [adv_uniform]
             results = np.concatenate([results, adv_uniform], axis=1)
 
     return results, datasets_names
 
 def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
-
+    results = np.clip(results, -1e5, 1e5) # clip so that histograms work
     num_dataset = len(datasets_names)
     f, axes = plt.subplots(len(results), num_dataset + 1, figsize=(5 * (num_dataset + 1), 5 * len(results)),
                            sharex='row', sharey='row')
