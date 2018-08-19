@@ -28,7 +28,7 @@ def fetch(input_fn, model_fn, model_dir, keys,  i):
     tuples = []
 
     for key in keys:
-        if batch_results_[0][key].shape[-1] in [1, 3]:
+        if batch_results_[0][key].shape[-1] in [1, 3, 30]: #when fetching adversarial examples
             each_key = np.concatenate([b[key] for b in batch_results_], axis=0)
         else:
             if key in ['approx_posterior_mean', 'approx_posterior_stddev']:
@@ -122,7 +122,7 @@ def compare_critic_preds(datasets, expand_last_dim, noised_list, noise_type_list
     ensemble_logits = []
     from tools.statistics import analysis_helper
     for i in range(M):
-        single_logit, datasets_names = analysis_helper(datasets, expand_last_dim, noised_list, noise_type_list, False,
+        single_logit, datasets_names = analysis_helper(datasets, expand_last_dim, noised_list, noise_type_list, None,
                                                       model_fn, model_dir, i, i, keys)
         single_logit = single_logit[0][:, 0]  # remove meaningless dim
         ensemble_logits.append(single_logit)
@@ -196,7 +196,7 @@ def compare_critic_preds(datasets, expand_last_dim, noised_list, noise_type_list
 
 # plot elbo for each dataset and also plot single elbo vs. ensemble variance
 def compare_elbo(datasets, expand_last_dim,  noised_list, noise_type_list, batch_size,
-                 model_fn, model_dir, show_adv, adv_base):
+                 model_fn, model_dir, show_adv, adv_base, feature_shape=(28,28), each_size=1000):
     from tools.statistics import analysis_helper
     M = 5
     f, axes = plt.subplots(1, 2, figsize=(10, 5))
@@ -207,8 +207,8 @@ def compare_elbo(datasets, expand_last_dim,  noised_list, noise_type_list, batch
     ensemble_posterior_vars = []
 
     for i in range(M):
-        single_results, datasets_names = analysis_helper(datasets, expand_last_dim,  noised_list, noise_type_list, False,
-                                                 model_fn,model_dir, i, i, keys)
+        single_results, datasets_names = analysis_helper(datasets, expand_last_dim,  noised_list, noise_type_list, None,
+                                                 model_fn,model_dir, i, i, keys, feature_shape, each_size)
         single_elbo = single_results[0]
         single_posterior_mean = single_results[1]
         single_posterior_var = single_results[2]
@@ -221,11 +221,15 @@ def compare_elbo(datasets, expand_last_dim,  noised_list, noise_type_list, batch
     ensemble_posterior_vars = np.array(ensemble_posterior_vars)
 
     # histogram of elbo of the last model on different datasets
-    bin_range = (-2000, 1000)
+    if each_size==1000:
+        bin_range = (-2000, 1000)
+    else:
+        bin_range = (-200, 0)
+
     bins = 300
     for i in range(len(datasets)):
         label = datasets_names[i]
-        axes[0].hist(single_elbo[1000*i:1000*(i+1)], label=label, alpha=0.5, bins=bins, range=bin_range)
+        axes[0].hist(single_elbo[each_size*i:each_size*(i+1)], label=label, alpha=0.5, bins=bins, range=bin_range)
 
     # get ensemble var for scatter plot below
     ensemble_var = np.var(ensemble_elbos, axis=0)
@@ -233,9 +237,9 @@ def compare_elbo(datasets, expand_last_dim,  noised_list, noise_type_list, batch
     # scatter plot of single elbo vs enesmble variance on each dataset
     for i in range(len(datasets)):
         label = datasets_names[i]
-        axes[1].scatter(single_elbo[1000*i:1000*(i+1)], ensemble_var[1000*i:1000*(i+1)], label=label, alpha=0.3)
+        axes[1].scatter(single_elbo[each_size*i:each_size*(i+1)], ensemble_var[each_size*i:each_size*(i+1)], label=label, alpha=0.3)
 
-    if show_adv:
+    if show_adv is not None:
         adversarial_normal_noise_ensemble, adversarial_uniform_noise_ensemble = adversarial_ensemble_fetch(datasets[0],
                                                                         batch_size, model_fn, model_dir, keys, adv_base)
         # get ensemble statistics on adversarial noise
@@ -279,7 +283,7 @@ def compare_elbo(datasets, expand_last_dim,  noised_list, noise_type_list, batch
     ensemble_results += vae_ensemble_statistics(ensemble_elbos, ensemble_posterior_means, ensemble_posterior_vars)
 
     from tools.statistics import plot_analysis
-    plot_analysis(ensemble_results, datasets_names, ensemble_keys)
+    plot_analysis(ensemble_results, datasets_names, ensemble_keys, each_size=each_size)
 
     # adjust range
     axes[0].set_xlabel('single ELBO of each dataset')
@@ -287,8 +291,10 @@ def compare_elbo(datasets, expand_last_dim,  noised_list, noise_type_list, batch
     axes[0].legend()
     axes[1].set_xlabel('ELBO of single model')
     axes[1].set_ylabel('ensemble variance')
-
-    top = 40000
+    if each_size==1000:
+        top = 40000
+    else:
+        top = 500
     axes[1].set_xlim(bin_range)
     axes[1].set_ylim(bottom=0, top=top)
     axes[1].legend()

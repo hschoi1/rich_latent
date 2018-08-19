@@ -42,11 +42,12 @@ def print_stats(values, truth, thresholds, name):
 
 
 def analysis_helper(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples,
-                   model_fn,  model_dir, which_model, adv_apply, keys):
+                   model_fn,  model_dir, which_model, adv_apply, keys, feature_shape=(28,28), each_size=1000):
 
     dataset_dic = {'mnist': tf.keras.datasets.mnist, 'fashion_mnist': tf.keras.datasets.fashion_mnist,
                    'cifar10': tf.keras.datasets.cifar10, 'cifar100': tf.keras.datasets.cifar100, 'SVHN':'SVHN',
-                   'notMNIST':'notMNIST', 'normal_noise': 'normal_noise', 'uniform_noise': 'uniform_noise'}
+                   'notMNIST':'notMNIST', 'normal_noise': 'normal_noise', 'uniform_noise': 'uniform_noise',
+                   'credit_card_normal':'credit_card_normal', 'credit_card_anomalies':'credit_card_anomalies'}
 
     converted_datasets = []
     datasets_names = []
@@ -57,8 +58,8 @@ def analysis_helper(compare_datasets, expand_last_dim, noised_list, noise_type_l
             dataset_name = dataset_name + ' nsd by '+noise_type_list[index]
         datasets_names.append(dataset_name)
 
-    input_fn = build_eval_multiple_datasets(converted_datasets, 100, expand_last_dim, noised_list=noised_list,
-                                            noise_type_list=noise_type_list)
+    input_fn = build_eval_multiple_datasets(converted_datasets, 100, expand_last_dim, noised_list,
+                                            noise_type_list, feature_shape, each_size)
 
     results = fetch(input_fn, model_fn, model_dir, keys, which_model)
 
@@ -126,14 +127,14 @@ def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
 
 
 def analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples, model_fn,  model_dir, which_model,
-                                                                                adv_apply, keys, bins=None):
+                                                         adv_apply, keys, bins=None, feature_shape=(28,28), each_size=1000):
 
 
     results, datasets_names = analysis_helper(compare_datasets, expand_last_dim, noised_list, noise_type_list,
-                                              show_adv_examples, model_fn,  model_dir, which_model, adv_apply, keys)
+                                     show_adv_examples, model_fn,  model_dir, which_model, adv_apply, keys, feature_shape, each_size)
 
     # plot elbo/logit/logp(x) for each dataset
     # and calculate AUROC/AP scores for keys (threshold variables)
-    plot_analysis(results, datasets_names, keys, bins)
+    plot_analysis(results, datasets_names, keys, bins, each_size)
 
 

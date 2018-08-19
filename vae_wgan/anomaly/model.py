@@ -189,6 +189,8 @@ def anomaly_model_fn(features, labels, mode, params, config):
     predictions['distortion'] = distortion
     predictions['rate'] = rate
     predictions['elbo'] = elbo_local
+    elbo_local_mean = tf.reduce_mean(elbo_local, axis=0)
+    predictions['elbo_local_mean'] = elbo_local_mean
 
     importance_weighted_elbo = tf.reduce_mean(
         tf.reduce_logsumexp(elbo_local, axis=0) -
@@ -197,7 +199,7 @@ def anomaly_model_fn(features, labels, mode, params, config):
 
     # Perform variational inference by minimizing the -ELBO.
     global_step = tf.train.get_or_create_global_step()
-    learning_rate = tf.train.cosine_decay(0.0001, global_step,
+    learning_rate = tf.train.cosine_decay(params["learning_rate"], global_step,
                                           params["max_steps"])
     tf.summary.scalar("learning_rate", learning_rate)
     optimizer = tf.train.AdamOptimizer(learning_rate)
@@ -208,48 +210,17 @@ def anomaly_model_fn(features, labels, mode, params, config):
     predictions['approx_posterior_stddev'] = approx_posterior.scale.diag
 
     # adversarial perturbation
-    grad, = tf.gradients(loss, features)
-    adversarial_example = features - .1 * tf.sign(grad)  # optimize the gibberish to minimize loss.
-    predictions['adversarial_example'] = adversarial_example
-    # pdb.set_trace()
-    elbo_local.set_shape((FLAGS.n_samples, None))
-    elbo_local_mean = tf.reduce_mean(elbo_local, axis=0)
-    predictions['elbo_local_mean'] = elbo_local_mean
-    elbo_local_mean = tf.sigmoid(elbo_local_mean)
-    predictions['sigmoid'] = elbo_local_mean
-    mask = tf.greater(elbo_local_mean, params['elbo_threshold'])
-    predictions['class'] = tf.cast(mask, tf.int32)
-    # elbo_local_mean = tf.clip_by_value(elbo_local_mean, 0.0,1.0)
-    # thresholds = [0.0, 0.5, 1.0]
-    thresholds = np.arange(0.0, 0.2, 0.01).tolist()
-
     if mode == tf.estimator.ModeKeys.PREDICT:
-        return tf.estimator.EstimatorSpec(
-            mode=mode,
-            eval_metric_ops={
-                "elbo": tf.metrics.mean(elbo),
-                "elbo/importance_weighted": tf.metrics.mean(importance_weighted_elbo),
-                "rate": tf.metrics.mean(avg_rate),
-                "distortion": tf.metrics.mean(avg_distortion),
-            },
-            predictions=predictions
-        )
-
-    labels = tf.cast(labels, tf.int32)
-
-    (metric_tensor1, update_op1) = tf.metrics.true_positives_at_thresholds(labels=labels, predictions=elbo_local_mean,
-                                                                           thresholds=thresholds)
-    (metric_tensor2, update_op2) = tf.metrics.true_negatives_at_thresholds(labels=labels, predictions=elbo_local_mean,
-                                                                           thresholds=thresholds)
-    (metric_tensor3, update_op3) = tf.metrics.false_positives_at_thresholds(labels=labels, predictions=elbo_local_mean,
-                                                                            thresholds=thresholds)
-    (metric_tensor4, update_op4) = tf.metrics.false_negatives_at_thresholds(labels=labels, predictions=elbo_local_mean,
-                                                                            thresholds=thresholds)
-
-    summary_hook = tf.train.SummarySaverHook(
-        save_steps=100,
-        output_dir=FLAGS.model_dir,
-        summary_op=tf.summary.merge_all())
+        # adversarial perturbation to random noise
+        grad, = tf.gradients(loss, features)
+        normal_noise = tfd.Normal(loc=tf.zeros([]), scale=tf.ones([]))
+        uniform_noise = tfd.Uniform(0.,1.)
+        normal_noise_samples = normal_noise.sample(sample_shape=tf.shape(features))
+        uniform_noise_samples = uniform_noise.sample(sample_shape=tf.shape(features))
+        adversarial_normal_noise = normal_noise_samples - .3 * tf.sign(grad)  # optimize the gibberish to minimize loss.
+        adversarial_uniform_noise = uniform_noise_samples - .3 * tf.sign(grad)  # optimize the gibberish to minimize loss.
+        predictions['adversarial_normal_noise'] = adversarial_normal_noise
+        predictions['adversarial_uniform_noise'] = adversarial_uniform_noise
 
     return tf.estimator.EstimatorSpec(
         mode=mode,
@@ -259,15 +230,12 @@ def anomaly_model_fn(features, labels, mode, params, config):
             "elbo": tf.metrics.mean(elbo),
             "elbo/importance_weighted": tf.metrics.mean(importance_weighted_elbo),
             "rate": tf.metrics.mean(avg_rate),
-            "distortion": tf.metrics.mean(avg_distortion),
-            "TP": (tf.cast(metric_tensor1, tf.float32), tf.cast(update_op1, tf.float32)),
-            "TN": (tf.cast(metric_tensor2, tf.float32), tf.cast(update_op2, tf.float32)),
-            "FP": (tf.cast(metric_tensor3, tf.float32), tf.cast(update_op3, tf.float32)),
-            "FN": (tf.cast(metric_tensor4, tf.float32), tf.cast(update_op4, tf.float32)),
-            "auc": tf.metrics.auc(labels=labels, predictions=elbo_local_mean),
-        },
-        predictions=predictions, training_hooks=[summary_hook]
+            "distortion": tf.metrics.mean(avg_distortion), },
+        predictions=predictions,
     )
+
+
+
 
 
 
