@@ -1,0 +1,154 @@
+TRAINED
+1 model
+
+credit_card_anomalies  using  single_elbo ,  AUROC:  0.9440   AP:  0.9160  FPR@95%TPR:  0.150406504065
+normal_noise  using  single_elbo ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+uniform_noise  using  single_elbo ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+adv_normal_noise  using  single_elbo ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+adv_uniform_noise  using  single_elbo ,  AUROC:  0.9985   AP:  0.9980  FPR@95%TPR:  0.00406504065041
+
+
+TRAINED
+ensemble of 2 models
+
+
+credit_card_anomalies  using  ensemble_elbo_mean ,  AUROC:  0.9925   AP:  0.9882  FPR@95%TPR:  0.0284552845528
+normal_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+uniform_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+adv_normal_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+adv_uniform_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+credit_card_anomalies  using  ensemble_elbo_var ,  AUROC:  0.0809   AP:  0.3195  FPR@95%TPR:  0.991869918699
+normal_noise  using  ensemble_elbo_var ,  AUROC:  0.0288   AP:  0.3116  FPR@95%TPR:  0.997967479675
+uniform_noise  using  ensemble_elbo_var ,  AUROC:  0.0371   AP:  0.3125  FPR@95%TPR:  0.997967479675
+adv_normal_noise  using  ensemble_elbo_var ,  AUROC:  8.6753   AP:  0.3073  FPR@95%TPR:  1.0
+adv_uniform_noise  using  ensemble_elbo_var ,  AUROC:  0.0531   AP:  0.3151  FPR@95%TPR:  0.99593495935
+credit_card_anomalies  using  ensemble_posterior_means_mean ,  AUROC:  0.5074   AP:  0.4657  FPR@95%TPR:  0.84756097561
+normal_noise  using  ensemble_posterior_means_mean ,  AUROC:  0.6571   AP:  0.5323  FPR@95%TPR:  0.396341463415
+uniform_noise  using  ensemble_posterior_means_mean ,  AUROC:  0.8583   AP:  0.7157  FPR@95%TPR:  0.19512195122
+adv_normal_noise  using  ensemble_posterior_means_mean ,  AUROC:  0.4285   AP:  0.4218  FPR@95%TPR:  0.595528455285
+adv_uniform_noise  using  ensemble_posterior_means_mean ,  AUROC:  0.3801   AP:  0.4027  FPR@95%TPR:  0.674796747967
+credit_card_anomalies  using  ensemble_posterior_means_var ,  AUROC:  0.8767   AP:  0.8475  FPR@95%TPR:  0.434959349593
+normal_noise  using  ensemble_posterior_means_var ,  AUROC:  0.9072   AP:  0.7829  FPR@95%TPR:  0.119918699187
+uniform_noise  using  ensemble_posterior_means_var ,  AUROC:  0.6832   AP:  0.5502  FPR@95%TPR:  0.412601626016
+adv_normal_noise  using  ensemble_posterior_means_var ,  AUROC:  0.8413   AP:  0.6887  FPR@95%TPR:  0.184959349593
+adv_uniform_noise  using  ensemble_posterior_means_var ,  AUROC:  0.6618   AP:  0.5361  FPR@95%TPR:  0.430894308943
+credit_card_anomalies  using  ensemble_posterior_vars_mean ,  AUROC:  0.1249   AP:  0.3279  FPR@95%TPR:  0.979674796748
+normal_noise  using  ensemble_posterior_vars_mean ,  AUROC:  1.6524   AP:  0.3073  FPR@95%TPR:  1.0
+uniform_noise  using  ensemble_posterior_vars_mean ,  AUROC:  0.2880   AP:  0.3730  FPR@95%TPR:  0.790650406504
+adv_normal_noise  using  ensemble_posterior_vars_mean ,  AUROC:  0.0   AP:  0.3073  FPR@95%TPR:  1.0
+adv_uniform_noise  using  ensemble_posterior_vars_mean ,  AUROC:  0.4326   AP:  0.4220  FPR@95%TPR:  0.615853658537
+credit_card_anomalies  using  ensemble_posterior_vars_var ,  AUROC:  0.6464   AP:  0.5366  FPR@95%TPR:  0.585365853659
+normal_noise  using  ensemble_posterior_vars_var ,  AUROC:  0.3374   AP:  0.3875  FPR@95%TPR:  0.760162601626
+uniform_noise  using  ensemble_posterior_vars_var ,  AUROC:  0.6154   AP:  0.5078  FPR@95%TPR:  0.506097560976
+adv_normal_noise  using  ensemble_posterior_vars_var ,  AUROC:  0.1381   AP:  0.3353  FPR@95%TPR:  0.896341463415
+adv_uniform_noise  using  ensemble_posterior_vars_var ,  AUROC:  0.4144   AP:  0.4142  FPR@95%TPR:  0.69918699187
+
+TRAINED 
+ensemble of 5 models
+
+
+credit_card_anomalies  using  ensemble_elbo_mean ,  AUROC:  0.9998   AP:  0.9998  FPR@95%TPR:  0.0
+normal_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+uniform_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+adv_normal_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+adv_uniform_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+credit_card_anomalies  using  ensemble_elbo_var ,  AUROC:  0.0031   AP:  0.3075  FPR@95%TPR:  1.0
+normal_noise  using  ensemble_elbo_var ,  AUROC:  0.0   AP:  0.3073  FPR@95%TPR:  1.0
+uniform_noise  using  ensemble_elbo_var ,  AUROC:  0.0001   AP:  0.3073  FPR@95%TPR:  1.0
+adv_normal_noise  using  ensemble_elbo_var ,  AUROC:  0.0   AP:  0.3073  FPR@95%TPR:  1.0
+adv_uniform_noise  using  ensemble_elbo_var ,  AUROC:  0.0001   AP:  0.3073  FPR@95%TPR:  1.0
+credit_card_anomalies  using  ensemble_posterior_means_mean ,  AUROC:  0.7561   AP:  0.6411  FPR@95%TPR:  0.483739837398
+normal_noise  using  ensemble_posterior_means_mean ,  AUROC:  0.4699   AP:  0.4364  FPR@95%TPR:  0.569105691057
+uniform_noise  using  ensemble_posterior_means_mean ,  AUROC:  0.7626   AP:  0.6125  FPR@95%TPR:  0.302845528455
+adv_normal_noise  using  ensemble_posterior_means_mean ,  AUROC:  0.2666   AP:  0.3687  FPR@95%TPR:  0.752032520325
+adv_uniform_noise  using  ensemble_posterior_means_mean ,  AUROC:  0.3958   AP:  0.4081  FPR@95%TPR:  0.664634146341
+credit_card_anomalies  using  ensemble_posterior_means_var ,  AUROC:  0.5061   AP:  0.4592  FPR@95%TPR:  0.808943089431
+normal_noise  using  ensemble_posterior_means_var ,  AUROC:  0.9374   AP:  0.8316  FPR@95%TPR:  0.0813008130081
+uniform_noise  using  ensemble_posterior_means_var ,  AUROC:  0.7669   AP:  0.6169  FPR@95%TPR:  0.30487804878
+adv_normal_noise  using  ensemble_posterior_means_var ,  AUROC:  0.5269   AP:  0.4619  FPR@95%TPR:  0.50406504065
+adv_uniform_noise  using  ensemble_posterior_means_var ,  AUROC:  0.5514   AP:  0.4731  FPR@95%TPR:  0.532520325203
+credit_card_anomalies  using  ensemble_posterior_vars_mean ,  AUROC:  0.0130   AP:  0.3090  FPR@95%TPR:  0.99593495935
+normal_noise  using  ensemble_posterior_vars_mean ,  AUROC:  0.0   AP:  0.3073  FPR@95%TPR:  1.0
+uniform_noise  using  ensemble_posterior_vars_mean ,  AUROC:  0.1343   AP:  0.3326  FPR@95%TPR:  0.916666666667
+adv_normal_noise  using  ensemble_posterior_vars_mean ,  AUROC:  0.0   AP:  0.3073  FPR@95%TPR:  1.0
+adv_uniform_noise  using  ensemble_posterior_vars_mean ,  AUROC:  0.3766   AP:  0.4010  FPR@95%TPR:  0.678861788618
+credit_card_anomalies  using  ensemble_posterior_vars_var ,  AUROC:  0.2285   AP:  0.3541  FPR@95%TPR:  0.886178861789
+normal_noise  using  ensemble_posterior_vars_var ,  AUROC:  0.0102   AP:  0.3085  FPR@95%TPR:  1.0
+uniform_noise  using  ensemble_posterior_vars_var ,  AUROC:  0.0990   AP:  0.3247  FPR@95%TPR:  0.965447154472
+adv_normal_noise  using  ensemble_posterior_vars_var ,  AUROC:  8.2622   AP:  0.3073  FPR@95%TPR:  1.0
+adv_uniform_noise  using  ensemble_posterior_vars_var ,  AUROC:  0.0259   AP:  0.3112  FPR@95%TPR:  0.991869918699
+
+
+TRAINED
+ensemble of 10 models
+
+credit_card_anomalies  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+normal_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+uniform_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+adv_normal_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+adv_uniform_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+credit_card_anomalies  using  ensemble_elbo_var ,  AUROC:  0.0004   AP:  0.3073  FPR@95%TPR:  1.0
+normal_noise  using  ensemble_elbo_var ,  AUROC:  0.0   AP:  0.3073  FPR@95%TPR:  1.0
+uniform_noise  using  ensemble_elbo_var ,  AUROC:  4.1311   AP:  0.3073  FPR@95%TPR:  1.0
+adv_normal_noise  using  ensemble_elbo_var ,  AUROC:  0.0   AP:  0.3073  FPR@95%TPR:  1.0
+adv_uniform_noise  using  ensemble_elbo_var ,  AUROC:  0.0   AP:  0.3073  FPR@95%TPR:  1.0
+credit_card_anomalies  using  ensemble_posterior_means_mean ,  AUROC:  0.9009   AP:  0.8598  FPR@95%TPR:  0.294715447154
+normal_noise  using  ensemble_posterior_means_mean ,  AUROC:  0.7626   AP:  0.6105  FPR@95%TPR:  0.290650406504
+uniform_noise  using  ensemble_posterior_means_mean ,  AUROC:  0.8659   AP:  0.7281  FPR@95%TPR:  0.184959349593
+adv_normal_noise  using  ensemble_posterior_means_mean ,  AUROC:  0.4068   AP:  0.4137  FPR@95%TPR:  0.607723577236
+adv_uniform_noise  using  ensemble_posterior_means_mean ,  AUROC:  0.4774   AP:  0.4391  FPR@95%TPR:  0.595528455285
+credit_card_anomalies  using  ensemble_posterior_means_var ,  AUROC:  0.6740   AP:  0.5575  FPR@95%TPR:  0.552845528455
+normal_noise  using  ensemble_posterior_means_var ,  AUROC:  0.9850   AP:  0.9497  FPR@95%TPR:  0.020325203252
+uniform_noise  using  ensemble_posterior_means_var ,  AUROC:  0.6493   AP:  0.5275  FPR@95%TPR:  0.424796747967
+adv_normal_noise  using  ensemble_posterior_means_var ,  AUROC:  0.4455   AP:  0.4279  FPR@95%TPR:  0.589430894309
+adv_uniform_noise  using  ensemble_posterior_means_var ,  AUROC:  0.4197   AP:  0.4169  FPR@95%TPR:  0.650406504065
+credit_card_anomalies  using  ensemble_posterior_vars_mean ,  AUROC:  0.0001   AP:  0.3073  FPR@95%TPR:  1.0
+normal_noise  using  ensemble_posterior_vars_mean ,  AUROC:  0.0   AP:  0.3073  FPR@95%TPR:  1.0
+uniform_noise  using  ensemble_posterior_vars_mean ,  AUROC:  0.0081   AP:  0.3087  FPR@95%TPR:  0.993902439024
+adv_normal_noise  using  ensemble_posterior_vars_mean ,  AUROC:  0.0   AP:  0.3073  FPR@95%TPR:  1.0
+adv_uniform_noise  using  ensemble_posterior_vars_mean ,  AUROC:  0.3355   AP:  0.3890  FPR@95%TPR:  0.693089430894
+credit_card_anomalies  using  ensemble_posterior_vars_var ,  AUROC:  0.1067   AP:  0.3259  FPR@95%TPR:  0.967479674797
+normal_noise  using  ensemble_posterior_vars_var ,  AUROC:  0.0003   AP:  0.3073  FPR@95%TPR:  1.0
+uniform_noise  using  ensemble_posterior_vars_var ,  AUROC:  0.0226   AP:  0.3109  FPR@95%TPR:  0.993902439024
+adv_normal_noise  using  ensemble_posterior_vars_var ,  AUROC:  0.0   AP:  0.3073  FPR@95%TPR:  1.0
+adv_uniform_noise  using  ensemble_posterior_vars_var ,  AUROC:  0.0001   AP:  0.3073  FPR@95%TPR:  1.0
+
+
+UNTRAINED
+ensembe of 5 models
+
+credit_card_anomalies  using  single_elbo ,  AUROC:  0.2403   AP:  0.3543  FPR@95%TPR:  0.991869918699
+normal_noise  using  single_elbo ,  AUROC:  0.1273   AP:  0.3283  FPR@95%TPR:  0.975609756098
+uniform_noise  using  single_elbo ,  AUROC:  0.4263   AP:  0.4197  FPR@95%TPR:  0.84756097561
+adv_normal_noise  using  single_elbo ,  AUROC:  0.9567   AP:  0.8895  FPR@95%TPR:  0.0792682926829
+adv_uniform_noise  using  single_elbo ,  AUROC:  0.5034   AP:  0.4518  FPR@95%TPR:  0.739837398374
+credit_card_anomalies  using  ensemble_elbo_mean ,  AUROC:  0.1884   AP:  0.3397  FPR@95%TPR:  0.99593495935
+normal_noise  using  ensemble_elbo_mean ,  AUROC:  0.0765   AP:  0.3183  FPR@95%TPR:  0.99593495935
+uniform_noise  using  ensemble_elbo_mean ,  AUROC:  0.6292   AP:  0.5646  FPR@95%TPR:  0.760162601626
+adv_normal_noise  using  ensemble_elbo_mean ,  AUROC:  0.9998   AP:  0.9998  FPR@95%TPR:  0.0
+adv_uniform_noise  using  ensemble_elbo_mean ,  AUROC:  0.7678   AP:  0.6647  FPR@95%TPR:  0.491869918699
+credit_card_anomalies  using  ensemble_elbo_var ,  AUROC:  0.6010   AP:  0.5765  FPR@95%TPR:  0.904471544715
+normal_noise  using  ensemble_elbo_var ,  AUROC:  0.4439   AP:  0.4405  FPR@95%TPR:  0.94918699187
+uniform_noise  using  ensemble_elbo_var ,  AUROC:  0.3226   AP:  0.3845  FPR@95%TPR:  0.983739837398
+adv_normal_noise  using  ensemble_elbo_var ,  AUROC:  0.0142   AP:  0.3092  FPR@95%TPR:  0.99593495935
+adv_uniform_noise  using  ensemble_elbo_var ,  AUROC:  0.2270   AP:  0.3504  FPR@95%TPR:  0.985772357724
+credit_card_anomalies  using  ensemble_posterior_means_mean ,  AUROC:  0.2691   AP:  0.3632  FPR@95%TPR:  0.94512195122
+normal_noise  using  ensemble_posterior_means_mean ,  AUROC:  0.3150   AP:  0.3796  FPR@95%TPR:  0.808943089431
+uniform_noise  using  ensemble_posterior_means_mean ,  AUROC:  0.4634   AP:  0.4325  FPR@95%TPR:  0.689024390244
+adv_normal_noise  using  ensemble_posterior_means_mean ,  AUROC:  0.3201   AP:  0.3838  FPR@95%TPR:  0.727642276423
+adv_uniform_noise  using  ensemble_posterior_means_mean ,  AUROC:  0.1153   AP:  0.3291  FPR@95%TPR:  0.936991869919
+credit_card_anomalies  using  ensemble_posterior_means_var ,  AUROC:  0.9562   AP:  0.9410  FPR@95%TPR:  0.138211382114
+normal_noise  using  ensemble_posterior_means_var ,  AUROC:  0.7458   AP:  0.6011  FPR@95%TPR:  0.35162601626
+uniform_noise  using  ensemble_posterior_means_var ,  AUROC:  0.6507   AP:  0.5301  FPR@95%TPR:  0.477642276423
+adv_normal_noise  using  ensemble_posterior_means_var ,  AUROC:  0.0993   AP:  0.3266  FPR@95%TPR:  0.926829268293
+adv_uniform_noise  using  ensemble_posterior_means_var ,  AUROC:  0.1164   AP:  0.3295  FPR@95%TPR:  0.934959349593
+credit_card_anomalies  using  ensemble_posterior_vars_mean ,  AUROC:  0.9117   AP:  0.8871  FPR@95%TPR:  0.282520325203
+normal_noise  using  ensemble_posterior_vars_mean ,  AUROC:  0.8911   AP:  0.7650  FPR@95%TPR:  0.156504065041
+uniform_noise  using  ensemble_posterior_vars_mean ,  AUROC:  0.5353   AP:  0.4650  FPR@95%TPR:  0.587398373984
+adv_normal_noise  using  ensemble_posterior_vars_mean ,  AUROC:  0.3713   AP:  0.4005  FPR@95%TPR:  0.674796747967
+adv_uniform_noise  using  ensemble_posterior_vars_mean ,  AUROC:  0.8945   AP:  0.7799  FPR@95%TPR:  0.178861788618
+credit_card_anomalies  using  ensemble_posterior_vars_var ,  AUROC:  0.3752   AP:  0.4032  FPR@95%TPR:  0.957317073171
+normal_noise  using  ensemble_posterior_vars_var ,  AUROC:  0.6992   AP:  0.5671  FPR@95%TPR:  0.44918699187
+uniform_noise  using  ensemble_posterior_vars_var ,  AUROC:  0.4074   AP:  0.4103  FPR@95%TPR:  0.784552845528
+adv_normal_noise  using  ensemble_posterior_vars_var ,  AUROC:  0.1514   AP:  0.3379  FPR@95%TPR:  0.896341463415
+adv_uniform_noise  using  ensemble_posterior_vars_var ,  AUROC:  0.6205   AP:  0.5123  FPR@95%TPR:  0.524390243902

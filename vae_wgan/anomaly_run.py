@@ -13,8 +13,7 @@ def del_all_flags(FLAGS):
        FLAGS.__delattr__(keys)
 
 del_all_flags(tf.flags.FLAGS)
-flags.DEFINE_bool(
-    'noise_to_input',default=False, help="whether to add noise to training data")
+
 flags.DEFINE_float(
     "learning_rate", default=0.0001, help="Initial learning rate.")
 flags.DEFINE_integer(

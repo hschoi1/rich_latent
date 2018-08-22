@@ -1,0 +1,145 @@
+TRAINED
+1 model
+
+mnist nsd by normal  using  single_elbo ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+mnist nsd by uniform  using  single_elbo ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+mnist nsd by brighten  using  single_elbo ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+mnist nsd by hor_flip  using  single_elbo ,  AUROC:  0.8511   AP:  0.7904  FPR@95%TPR:  0.398
+mnist nsd by ver_flip  using  single_elbo ,  AUROC:  0.7985   AP:  0.7199  FPR@95%TPR:  0.547
+notMNIST  using  single_elbo ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+fashion_mnist  using  single_elbo ,  AUROC:  0.9999   AP:  0.9999  FPR@95%TPR:  0.0
+fashion_mnist nsd by normal  using  single_elbo ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+normal_noise  using  single_elbo ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+uniform_noise  using  single_elbo ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+adv_normal_noise  using  single_elbo ,  AUROC:  0.0   AP:  0.3071  FPR@95%TPR:  1.0
+adv_uniform_noise  using  single_elbo ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+
+
+TRAINED
+ensemble of 2 models
+
+mnist nsd by normal  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+mnist nsd by uniform  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+mnist nsd by brighten  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+mnist nsd by hor_flip  using  ensemble_elbo_mean ,  AUROC:  0.9234   AP:  0.8847  FPR@95%TPR:  0.225
+mnist nsd by ver_flip  using  ensemble_elbo_mean ,  AUROC:  0.8599   AP:  0.8084  FPR@95%TPR:  0.379
+notMNIST  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+fashion_mnist  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+fashion_mnist nsd by normal  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+normal_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+uniform_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+adv_normal_noise  using  ensemble_elbo_mean ,  AUROC:  0.0   AP:  0.3071  FPR@95%TPR:  1.0
+adv_uniform_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+mnist nsd by normal  using  ensemble_elbo_var ,  AUROC:  0.3807   AP:  0.4104  FPR@95%TPR:  0.978
+mnist nsd by uniform  using  ensemble_elbo_var ,  AUROC:  0.3402   AP:  0.3900  FPR@95%TPR:  0.98
+mnist nsd by brighten  using  ensemble_elbo_var ,  AUROC:  0.1638   AP:  0.3352  FPR@95%TPR:  0.989
+mnist nsd by hor_flip  using  ensemble_elbo_var ,  AUROC:  0.3452   AP:  0.3921  FPR@95%TPR:  0.98
+mnist nsd by ver_flip  using  ensemble_elbo_var ,  AUROC:  0.3566   AP:  0.3960  FPR@95%TPR:  0.984
+notMNIST  using  ensemble_elbo_var ,  AUROC:  0.0108   AP:  0.3086  FPR@95%TPR:  1.0
+fashion_mnist  using  ensemble_elbo_var ,  AUROC:  0.0362   AP:  0.3124  FPR@95%TPR:  1.0
+fashion_mnist nsd by normal  using  ensemble_elbo_var ,  AUROC:  0.0339   AP:  0.3120  FPR@95%TPR:  0.998
+normal_noise  using  ensemble_elbo_var ,  AUROC:  0.0318   AP:  0.3114  FPR@95%TPR:  0.997
+uniform_noise  using  ensemble_elbo_var ,  AUROC:  3.0000   AP:  0.3071  FPR@95%TPR:  1.0
+adv_normal_noise  using  ensemble_elbo_var ,  AUROC:  0.0402   AP:  0.3129  FPR@95%TPR:  0.998
+adv_uniform_noise  using  ensemble_elbo_var ,  AUROC:  0.1074   AP:  0.3240  FPR@95%TPR:  0.995
+
+
+TRAINED
+ensemble of 5 models
+
+mnist nsd by normal  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+mnist nsd by uniform  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+mnist nsd by brighten  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+mnist nsd by hor_flip  using  ensemble_elbo_mean ,  AUROC:  0.9795   AP:  0.9751  FPR@95%TPR:  0.077
+mnist nsd by ver_flip  using  ensemble_elbo_mean ,  AUROC:  0.9588   AP:  0.9467  FPR@95%TPR:  0.155
+notMNIST  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+fashion_mnist  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+fashion_mnist nsd by normal  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+normal_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+uniform_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+adv_normal_noise  using  ensemble_elbo_mean ,  AUROC:  0.0   AP:  0.3071  FPR@95%TPR:  1.0
+adv_uniform_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+mnist nsd by normal  using  ensemble_elbo_var ,  AUROC:  0.2980   AP:  0.3748  FPR@95%TPR:  0.986
+mnist nsd by uniform  using  ensemble_elbo_var ,  AUROC:  0.2114   AP:  0.3455  FPR@95%TPR:  0.99
+mnist nsd by brighten  using  ensemble_elbo_var ,  AUROC:  0.0200   AP:  0.3092  FPR@95%TPR:  1.0
+mnist nsd by hor_flip  using  ensemble_elbo_var ,  AUROC:  0.1743   AP:  0.3361  FPR@95%TPR:  0.997
+mnist nsd by ver_flip  using  ensemble_elbo_var ,  AUROC:  0.2091   AP:  0.3452  FPR@95%TPR:  0.989
+notMNIST  using  ensemble_elbo_var ,  AUROC:  0.0   AP:  0.3071  FPR@95%TPR:  1.0
+fashion_mnist  using  ensemble_elbo_var ,  AUROC:  0.0   AP:  0.3071  FPR@95%TPR:  1.0
+fashion_mnist nsd by normal  using  ensemble_elbo_var ,  AUROC:  1e-06   AP:  0.3071  FPR@95%TPR:  1.0
+normal_noise  using  ensemble_elbo_var ,  AUROC:  0.0009   AP:  0.3071  FPR@95%TPR:  1.0
+uniform_noise  using  ensemble_elbo_var ,  AUROC:  0.0   AP:  0.3071  FPR@95%TPR:  1.0
+adv_normal_noise  using  ensemble_elbo_var ,  AUROC:  4e-06   AP:  0.3071  FPR@95%TPR:  1.0
+adv_uniform_noise  using  ensemble_elbo_var ,  AUROC:  0.0147   AP:  0.3088  FPR@95%TPR:  1.0
+
+
+TRAINED
+ensemble of 10 models
+
+
+mnist nsd by normal  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+mnist nsd by uniform  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+mnist nsd by brighten  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+mnist nsd by hor_flip  using  ensemble_elbo_mean ,  AUROC:  0.9997   AP:  0.9997  FPR@95%TPR:  0.0
+mnist nsd by ver_flip  using  ensemble_elbo_mean ,  AUROC:  0.9941   AP:  0.9916  FPR@95%TPR:  0.02
+notMNIST  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+fashion_mnist  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+fashion_mnist nsd by normal  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+normal_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+uniform_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+adv_normal_noise  using  ensemble_elbo_mean ,  AUROC:  0.0   AP:  0.3071  FPR@95%TPR:  1.0
+adv_uniform_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+mnist nsd by normal  using  ensemble_elbo_var ,  AUROC:  0.2158   AP:  0.3472  FPR@95%TPR:  0.996
+mnist nsd by uniform  using  ensemble_elbo_var ,  AUROC:  0.0909   AP:  0.3183  FPR@95%TPR:  1.0
+mnist nsd by brighten  using  ensemble_elbo_var ,  AUROC:  0.0003   AP:  0.3071  FPR@95%TPR:  1.0
+mnist nsd by hor_flip  using  ensemble_elbo_var ,  AUROC:  0.0596   AP:  0.3138  FPR@95%TPR:  0.999
+mnist nsd by ver_flip  using  ensemble_elbo_var ,  AUROC:  0.1040   AP:  0.3213  FPR@95%TPR:  0.996
+notMNIST  using  ensemble_elbo_var ,  AUROC:  0.0   AP:  0.3071  FPR@95%TPR:  1.0
+fashion_mnist  using  ensemble_elbo_var ,  AUROC:  0.0   AP:  0.3071  FPR@95%TPR:  1.0
+fashion_mnist nsd by normal  using  ensemble_elbo_var ,  AUROC:  0.0   AP:  0.3071  FPR@95%TPR:  1.0
+normal_noise  using  ensemble_elbo_var ,  AUROC:  0.0   AP:  0.3071  FPR@95%TPR:  1.0
+uniform_noise  using  ensemble_elbo_var ,  AUROC:  0.0   AP:  0.3071  FPR@95%TPR:  1.0
+adv_normal_noise  using  ensemble_elbo_var ,  AUROC:  0.0   AP:  0.3071  FPR@95%TPR:  1.0
+adv_uniform_noise  using  ensemble_elbo_var ,  AUROC:  1.4000   AP:  0.3071  FPR@95%TPR:  1.0
+
+
+
+UNTRAINED
+ensemble of 5 models
+
+mnist nsd by normal  using  single_elbo ,  AUROC:  0.4626   AP:  0.4693  FPR@95%TPR:  0.964
+mnist nsd by uniform  using  single_elbo ,  AUROC:  0.4003   AP:  0.4325  FPR@95%TPR:  0.983
+mnist nsd by brighten  using  single_elbo ,  AUROC:  0.3478   AP:  0.4009  FPR@95%TPR:  0.985
+mnist nsd by hor_flip  using  single_elbo ,  AUROC:  0.4951   AP:  0.4943  FPR@95%TPR:  0.968
+mnist nsd by ver_flip  using  single_elbo ,  AUROC:  0.5074   AP:  0.5020  FPR@95%TPR:  0.96
+notMNIST  using  single_elbo ,  AUROC:  0.2214   AP:  0.3485  FPR@95%TPR:  0.989
+fashion_mnist  using  single_elbo ,  AUROC:  0.2564   AP:  0.3585  FPR@95%TPR:  0.983
+fashion_mnist nsd by normal  using  single_elbo ,  AUROC:  0.2392   AP:  0.3535  FPR@95%TPR:  0.991
+normal_noise  using  single_elbo ,  AUROC:  0.2786   AP:  0.3697  FPR@95%TPR:  0.993
+uniform_noise  using  single_elbo ,  AUROC:  0.0740   AP:  0.3154  FPR@95%TPR:  1.0
+adv_normal_noise  using  single_elbo ,  AUROC:  0.4474   AP:  0.4371  FPR@95%TPR:  0.934
+adv_uniform_noise  using  single_elbo ,  AUROC:  0.0286   AP:  0.3090  FPR@95%TPR:  1.0
+mnist nsd by normal  using  ensemble_elbo_mean ,  AUROC:  0.4864   AP:  0.4878  FPR@95%TPR:  0.952
+mnist nsd by uniform  using  ensemble_elbo_mean ,  AUROC:  0.4717   AP:  0.4773  FPR@95%TPR:  0.963
+mnist nsd by brighten  using  ensemble_elbo_mean ,  AUROC:  0.4327   AP:  0.4540  FPR@95%TPR:  0.978
+mnist nsd by hor_flip  using  ensemble_elbo_mean ,  AUROC:  0.4959   AP:  0.5029  FPR@95%TPR:  0.969
+mnist nsd by ver_flip  using  ensemble_elbo_mean ,  AUROC:  0.4828   AP:  0.4893  FPR@95%TPR:  0.964
+notMNIST  using  ensemble_elbo_mean ,  AUROC:  0.4170   AP:  0.4154  FPR@95%TPR:  0.878
+fashion_mnist  using  ensemble_elbo_mean ,  AUROC:  0.3965   AP:  0.4096  FPR@95%TPR:  0.923
+fashion_mnist nsd by normal  using  ensemble_elbo_mean ,  AUROC:  0.3732   AP:  0.3995  FPR@95%TPR:  0.923
+normal_noise  using  ensemble_elbo_mean ,  AUROC:  0.4000   AP:  0.4494  FPR@95%TPR:  0.988
+uniform_noise  using  ensemble_elbo_mean ,  AUROC:  0.2568   AP:  0.3649  FPR@95%TPR:  0.997
+adv_normal_noise  using  ensemble_elbo_mean ,  AUROC:  0.4545   AP:  0.4476  FPR@95%TPR:  0.919
+adv_uniform_noise  using  ensemble_elbo_mean ,  AUROC:  0.5348   AP:  0.5498  FPR@95%TPR:  0.963
+mnist nsd by normal  using  ensemble_elbo_var ,  AUROC:  0.6278   AP:  0.6216  FPR@95%TPR:  0.892
+mnist nsd by uniform  using  ensemble_elbo_var ,  AUROC:  0.7290   AP:  0.7347  FPR@95%TPR:  0.806
+mnist nsd by brighten  using  ensemble_elbo_var ,  AUROC:  0.8725   AP:  0.8741  FPR@95%TPR:  0.536
+mnist nsd by hor_flip  using  ensemble_elbo_var ,  AUROC:  0.4641   AP:  0.4762  FPR@95%TPR:  0.963
+mnist nsd by ver_flip  using  ensemble_elbo_var ,  AUROC:  0.4926   AP:  0.4881  FPR@95%TPR:  0.95
+notMNIST  using  ensemble_elbo_var ,  AUROC:  0.9144   AP:  0.8953  FPR@95%TPR:  0.314
+fashion_mnist  using  ensemble_elbo_var ,  AUROC:  0.9140   AP:  0.8911  FPR@95%TPR:  0.301
+fashion_mnist nsd by normal  using  ensemble_elbo_var ,  AUROC:  0.9334   AP:  0.9222  FPR@95%TPR:  0.267
+normal_noise  using  ensemble_elbo_var ,  AUROC:  0.9656   AP:  0.9696  FPR@95%TPR:  0.2
+uniform_noise  using  ensemble_elbo_var ,  AUROC:  0.9999   AP:  0.9999  FPR@95%TPR:  0.0
+adv_normal_noise  using  ensemble_elbo_var ,  AUROC:  0.0965   AP:  0.3203  FPR@95%TPR:  0.996
+adv_uniform_noise  using  ensemble_elbo_var ,  AUROC:  0.7803   AP:  0.7433  FPR@95%TPR:  0.632

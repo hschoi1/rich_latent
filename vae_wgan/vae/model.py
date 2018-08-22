@@ -207,9 +207,7 @@ def model_fn(features, labels, mode, params, config):
                                           params["mixture_components"])
 
     image_tile_summary("input", tf.to_float(features), rows=1, cols=16)
-    if params["noise_to_input"]:
-        noise = tfd.Normal(loc=tf.zeros([features.shape]), scale=tf.ones([features.shape]))
-        features = features + noise
+
     approx_posterior = encoder(features)
     approx_posterior_sample = approx_posterior.sample(params["n_samples"])
     decoder_likelihood = decoder(approx_posterior_sample)

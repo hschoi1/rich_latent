@@ -97,6 +97,21 @@ def build_eval_multiple_datasets(dataset_list, batch_size, expand_last_dim=False
 
     return eval_input_fn
 
+# for wgan
+def build_eval_multiple_datasets2(dataset_list, expand_last_dim=False, noised_list=None,
+                               noise_type_list=None, feature_shape=(28,28), each_size=1000):
+
+    x_test_list = []
+    for i, dataset in enumerate(dataset_list):
+        if noised_list != None:
+            x_test = build_eval_helper(dataset, expand_last_dim, noised_list[i], noise_type_list[i],feature_shape, each_size)
+        else:
+            x_test = build_eval_helper(dataset, expand_last_dim, feature_shape=feature_shape, each_size=each_size)
+
+        x_test_list.append(x_test)
+
+    return np.concatenate(x_test_list, axis=0)
+
 
 def build_eval_helper(dataset, expand_last_dim=False, noised=False, noise_type='normal', feature_shape=(28,28), each_size=1000):
 
@@ -112,15 +127,15 @@ def build_eval_helper(dataset, expand_last_dim=False, noised=False, noise_type='
         loaded = np.fromfile(file='data/t10k-images-idx3-ubyte', dtype=np.uint8)
         x_test = np.reshape(loaded[16:], (-1, 28, 28))
     elif dataset == 'SVHN':
-        loaded = loadmat('test_32x32.mat')['X']
+        loaded = loadmat('data/test_32x32.mat')['X']
         reshaped = loaded.transpose((3, 0, 1, 2))
         x_test = np.reshape(reshaped, (-1, 32, 32, 3))
 
     elif dataset == 'ImageNet':
-        x_test = np.load('imagenet.npy')
+        x_test = np.load('data/imagenet.npy')
 
     elif dataset == 'celebA':
-        x_test = np.load('celeba.npy')
+        x_test = np.load('data/celeba.npy')
 
     elif dataset == 'credit_card_normal':
         x_test = credit_dataset_helper()[0] * 255.  #will be divided by 255 later
