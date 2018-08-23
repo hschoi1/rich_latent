@@ -129,13 +129,13 @@ def main(argv):
     which_model = 0
     expand_last_dim = False
     FLAGS.model_dir = "gs://hyunsun/anomaly/model"
-    analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples, anomaly_model_fn,
+    single_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples, anomaly_model_fn,
              FLAGS.model_dir, which_model,
              which_model, keys, bins, feature_shape=(30,), each_size=492)
 
     #which model to use to create adversarially perturbed noise for ensemble analysis
     adv_base = 0
-    compare_elbo(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size,
+    ensemble_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size,
                  anomaly_model_fn, FLAGS.model_dir, show_adv_examples, adv_base, feature_shape=(30,), each_size=492)
 
 if __name__ == "__main__":

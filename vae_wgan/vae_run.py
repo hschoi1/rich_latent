@@ -140,16 +140,20 @@ def main(argv):
    
     #out of the 5 models, which model to use for analysis
     which_model = 0
-    expand_last_dim = True
+    expand_last_dim = True  #for MNIST, True, for CIFAR10: False
     FLAGS.model_dir = "gs://hyunsun/image_vae/mnist/model"
-    analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples, model_fn, FLAGS.model_dir, which_model,
-             which_model, keys, bins)
+
+    #for single models
+    single_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples, model_fn, FLAGS.model_dir, which_model,
+             which_model, keys, bins)  # for cifar10, attach feature_shape=(32,32,3)
 
     #which model to use to create adversarially perturbed noise for ensemble analysis
     adv_base = 0
-    compare_elbo(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size,
-                                                 model_fn, FLAGS.model_dir, show_adv_examples, adv_base)
 
+    #for ensembles
+    ensemble_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size,
+                                                 model_fn, FLAGS.model_dir, show_adv_examples, adv_base)
+                                                   # for cifar10, attach feature_shape=(32,32,3)
 if __name__ == "__main__":
     tf.app.run()
 

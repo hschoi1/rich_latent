@@ -5,7 +5,7 @@ matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from sklearn.metrics import roc_curve, average_precision_score, roc_auc_score
+from sklearn.metrics import roc_curve, average_precision_score, roc_auc_score, f1_score
 from tools.analysis import *
 
 
@@ -14,6 +14,21 @@ def FPRat95TPR(labels, predictions):
     for i in range(len(tprs)-1):
         if (tprs[i] < 0.95) and (tprs[i+1] >= 0.95):
             return fprs[i+1]
+
+def F1score(labels, predictions, is_mean):
+    test_dist = predictions[:1000]  #mnist/cifar10 test set distribution
+    preds_normalized = predictions / (test_dist.max() - test_dist.min())
+    test_normalized = preds_normalized[:1000]
+    test_mean = test_normalized.mean()
+    test_std = test_normalized.std()
+    if is_mean:
+        threshold = test_mean - 3*test_std
+        masked = preds_normalized > threshold
+    else:  # if var,
+        threshold = test_mean + 3*test_std
+        masked = preds_normalized < threshold
+    f1 = f1_score(y_true=labels, y_pred=masked)
+    return f1
 
 def TFstatistics(labels, predictions):
     TP = 0
@@ -45,9 +60,10 @@ def analysis_helper(compare_datasets, expand_last_dim, noised_list, noise_type_l
                    model_fn,  model_dir, which_model, adv_apply, keys, feature_shape=(28,28), each_size=1000):
 
     dataset_dic = {'mnist': tf.keras.datasets.mnist, 'fashion_mnist': tf.keras.datasets.fashion_mnist,
-                   'cifar10': tf.keras.datasets.cifar10, 'cifar100': tf.keras.datasets.cifar100, 'SVHN':'SVHN',
-                   'notMNIST':'notMNIST', 'normal_noise': 'normal_noise', 'uniform_noise': 'uniform_noise',
-                   'credit_card_normal':'credit_card_normal', 'credit_card_anomalies':'credit_card_anomalies'}
+                   'cifar10': tf.keras.datasets.cifar10, 'cifar100': tf.keras.datasets.cifar100,
+                   'ImageNet':'ImageNet', 'SVHN':'SVHN','notMNIST':'notMNIST', 'celebA':'celebA',
+                   'normal_noise': 'normal_noise','uniform_noise': 'uniform_noise',
+                   'credit_card_normal':'credit_card_normal','credit_card_anomalies':'credit_card_anomalies'}
 
     converted_datasets = []
     datasets_names = []
@@ -81,7 +97,7 @@ def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
     num_dataset = len(datasets_names)
     f, axes = plt.subplots(len(results), num_dataset + 1, figsize=(5 * (num_dataset + 1), 5 * len(results)),
                            sharex='row', sharey='row')
-    for i, value in enumerate(results):
+    for i, value in enumerate(results):  # iterate over values of each key
         if len(keys) == 1:
             this_axis = axes[0]
             last_axis = axes[num_dataset]
@@ -113,20 +129,27 @@ def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
 
             this_axis.set_xlabel(keys[i] + " of " + datasets_names[index])
 
-            truth = np.concatenate([np.ones(each_size), np.zeros(each_size)])
+            if 'var' in keys[i]:
+                is_mean = False  # points above threshold are anomalous
+                truth = np.concatenate([np.zeros(each_size), np.ones(each_size)])
+            else:
+                is_mean = True  # points below threshold are anomalous
+                truth = np.concatenate([np.ones(each_size), np.zeros(each_size)])
+
             predictions = np.concatenate([value[:each_size], value[each_size * index:each_size * (index + 1)]])
             auroc_score = roc_auc_score(y_true=truth, y_score=predictions)
             ap_score = average_precision_score(y_true=truth, y_score=predictions)
             fpr_at_95tpr = FPRat95TPR(truth, predictions)
+            f1score = F1score(truth, predictions, is_mean)
             print(datasets_names[index], " using ", keys[i], ",  AUROC: ", str(auroc_score)[:6], "  AP: ", str(ap_score)[:6],
-                  " FPR@95%TPR: ", fpr_at_95tpr)
+                  " FPR@95%TPR: ", str(fpr_at_95tpr)[:5]," f1: ", str(f1score)[:5])
         last_axis.set_xlabel(keys[i])
         last_axis.legend()
 
     f.savefig("stats")
 
-
-def analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples, model_fn,  model_dir, which_model,
+# for single model
+def single_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples, model_fn,  model_dir, which_model,
                                                          adv_apply, keys, bins=None, feature_shape=(28,28), each_size=1000):
 
 

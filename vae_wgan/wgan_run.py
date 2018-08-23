@@ -19,7 +19,7 @@ flags.DEFINE_integer(
     "max_steps", default=20001,
     help="Number of generator updates. one generator update followed by 'Citers' times critic updates.")
 flags.DEFINE_integer(
-    "extra_steps", default=201, help="Number of extra training steps for a discriminative model.")
+    "extra_steps", default=4001, help="Number of extra training steps for a discriminative model.")
 flags.DEFINE_integer(
     "z_dim", default=128, help="dimension of latent z")
 flags.DEFINE_integer("base_depth", default=32, help="Base depth for layers.")
@@ -322,14 +322,14 @@ for model_num in range(5):
         summary_writer = tf.summary.FileWriter(FLAGS.model_dir + str(model_num) + '/extra')
     
         for extra_step in range(FLAGS.extra_steps):
-            if extra_step % 50 == 0:
+            if extra_step % 1000 == 0:
                 saver.save(sess, FLAGS.model_dir+str(model_num)+'/extra/model.ckpt', global_step=extra_step)
 
             feed_dict = next_feed_dict()
             fetch_dict = {'train_op': extra_train_op, 'loss': discrim_loss, 'extra_counter': extra_counter}
             results = sess.run(fetch_dict, feed_dict)
 
-            if extra_step % 10 == 0:
+            if extra_step % 100 == 0:
                 print(results['loss'], results['extra_counter'])
                 summ = sess.run({'sum': summ_op}, feed_dict)
                 summary_writer.add_summary(summ['sum'], extra_step)
@@ -387,8 +387,22 @@ for model_num in range(5):
         saver = tf.train.Saver()
         #saver.restore(sess, FLAGS.model_dir + str(model_num) + '/extra/model.ckpt-0')
         saver.restore(sess, tf.train.latest_checkpoint(FLAGS.model_dir+str(model_num)+'/extra/'))
+        '''
+        # check if the critic is classifying well
+        feed_dict = {features: eval_data[:1000]}
+        fetch_dict = {'discrim_logits':discrim_logits}
+        fetched_results = sess.run(fetch_dict, feed_dict)
+        discrim_results = fetched_results['discrim_logits']
+        discrim_probs = np.exp(discrim_results)/(1+np.exp(discrim_results))
+        discrim_preds = (discrim_probs > 0.5)
+        truth = np.concatenate([np.ones(1000), np.zeros(1000)])
+        truth = np.expand_dims(truth, axis=-1)
+        correct = sum(discrim_preds == truth)
+        print(correct)   # how many correct classifications out of 2000
+        '''
+
         feed_dict = {features: eval_data}
-        fetch_dict = {'loss': discrim_loss, 'true_logit': true_logit}
+        fetch_dict = {'true_logit': true_logit}
         fetched_results = sess.run(fetch_dict, feed_dict)
         logits = fetched_results['true_logit']
 
