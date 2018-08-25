@@ -185,7 +185,7 @@ def build_keras_dataset(keras_dataset, batch_size, expand_last_dim=False):
     x_test = x_test.astype(np.float32) / 255.
 
     train_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
-    train_dataset = train_dataset.shuffle(buffer_size=256).repeat().batch(batch_size)
+    train_dataset = train_dataset.shuffle(buffer_size=x_train.shape[0]).repeat().batch(batch_size)
     eval_dataset = tf.data.Dataset.from_tensor_slices((x_test, y_test)).batch(batch_size)
 
     train_input_fn = lambda: train_dataset.repeat().make_one_shot_iterator().get_next()

@@ -1,0 +1,26 @@
+TRAINED
+1 model
+
+credit_card_anomalies  using  single_elbo ,  AUROC:  0.9322   AP:  0.9063  FPR@95%TPR:  0.174
+normal_noise  using  single_elbo ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+uniform_noise  using  single_elbo ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+adv_normal_noise  using  single_elbo ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+adv_uniform_noise  using  single_elbo ,  AUROC:  0.9962   AP:  0.9879  FPR@95%TPR:  0.006
+
+
+
+TRAINED 
+ensemble of 5 models
+
+
+
+credit_card_anomalies  using  ensemble_elbo_mean ,  AUROC:  0.9999   AP:  0.9999  FPR@95%TPR:  0.0
+normal_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+uniform_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+adv_normal_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+adv_uniform_noise  using  ensemble_elbo_mean ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+credit_card_anomalies  using  ensemble_elbo_var ,  AUROC:  0.9950   AP:  0.9954  FPR@95%TPR:  0.024
+normal_noise  using  ensemble_elbo_var ,  AUROC:  0.9999   AP:  0.9999  FPR@95%TPR:  0.0
+uniform_noise  using  ensemble_elbo_var ,  AUROC:  0.9998   AP:  0.9998  FPR@95%TPR:  0.0
+adv_normal_noise  using  ensemble_elbo_var ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+adv_uniform_noise  using  ensemble_elbo_var ,  AUROC:  0.9999   AP:  0.9999  FPR@95%TPR:  0.0

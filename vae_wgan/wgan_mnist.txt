@@ -1,0 +1,83 @@
+
+WITHOUT EXTRA TRAINING STEPS
+single model and ensemble of 5 models
+
+mnist nsd by normal  using  single_logits ,  AUROC:  0.6569   AP:  0.6328  FPR@95%TPR:  0.866
+mnist nsd by uniform  using  single_logits ,  AUROC:  0.5686   AP:  0.5493  FPR@95%TPR:  0.918
+mnist nsd by brighten  using  single_logits ,  AUROC:  0.5476   AP:  0.5409  FPR@95%TPR:  0.92
+mnist nsd by hor_flip  using  single_logits ,  AUROC:  0.6906   AP:  0.6825  FPR@95%TPR:  0.875
+mnist nsd by ver_flip  using  single_logits ,  AUROC:  0.6797   AP:  0.6803  FPR@95%TPR:  0.9
+notMNIST  using  single_logits ,  AUROC:  0.4758   AP:  0.4445  FPR@95%TPR:  0.857
+fashion_mnist  using  single_logits ,  AUROC:  0.6890   AP:  0.6055  FPR@95%TPR:  0.717
+fashion_mnist nsd by normal  using  single_logits ,  AUROC:  0.7141   AP:  0.6392  FPR@95%TPR:  0.662
+normal_noise  using  single_logits ,  AUROC:  0.1328   AP:  0.3802  FPR@95%TPR:  1.0
+uniform_noise  using  single_logits ,  AUROC:  0.5710   AP:  0.7286  FPR@95%TPR:  1.0
+adv_normal  using  single_logits ,  AUROC:  0.0001   AP:  0.3071  FPR@95%TPR:  1.0
+adv_uniform  using  single_logits ,  AUROC:  0.1283   AP:  0.3773  FPR@95%TPR:  1.0
+mnist nsd by normal  using  logits_ens_mean ,  AUROC:  0.7867   AP:  0.7628  FPR@95%TPR:  0.715
+mnist nsd by uniform  using  logits_ens_mean ,  AUROC:  0.6840   AP:  0.6464  FPR@95%TPR:  0.853
+mnist nsd by brighten  using  logits_ens_mean ,  AUROC:  0.6896   AP:  0.6594  FPR@95%TPR:  0.845
+mnist nsd by hor_flip  using  logits_ens_mean ,  AUROC:  0.7646   AP:  0.7582  FPR@95%TPR:  0.726
+mnist nsd by ver_flip  using  logits_ens_mean ,  AUROC:  0.7442   AP:  0.7338  FPR@95%TPR:  0.785
+notMNIST  using  logits_ens_mean ,  AUROC:  0.8593   AP:  0.7694  FPR@95%TPR:  0.385
+fashion_mnist  using  logits_ens_mean ,  AUROC:  0.9123   AP:  0.8657  FPR@95%TPR:  0.243
+fashion_mnist nsd by normal  using  logits_ens_mean ,  AUROC:  0.9561   AP:  0.9479  FPR@95%TPR:  0.155
+normal_noise  using  logits_ens_mean ,  AUROC:  0.1446   AP:  0.3803  FPR@95%TPR:  1.0
+uniform_noise  using  logits_ens_mean ,  AUROC:  0.8807   AP:  0.9269  FPR@95%TPR:  0.967
+adv_normal  using  logits_ens_mean ,  AUROC:  0.0099   AP:  0.3074  FPR@95%TPR:  1.0
+adv_uniform  using  logits_ens_mean ,  AUROC:  0.2284   AP:  0.4334  FPR@95%TPR:  1.0
+mnist nsd by normal  using  logits_ens_var ,  AUROC:  0.4991   AP:  0.5017  FPR@95%TPR:  0.935
+mnist nsd by uniform  using  logits_ens_var ,  AUROC:  0.5429   AP:  0.5327  FPR@95%TPR:  0.94
+mnist nsd by brighten  using  logits_ens_var ,  AUROC:  0.5453   AP:  0.5242  FPR@95%TPR:  0.934
+mnist nsd by hor_flip  using  logits_ens_var ,  AUROC:  0.4524   AP:  0.4708  FPR@95%TPR:  0.925
+mnist nsd by ver_flip  using  logits_ens_var ,  AUROC:  0.4662   AP:  0.4709  FPR@95%TPR:  0.922
+notMNIST  using  logits_ens_var ,  AUROC:  0.7717   AP:  0.8207  FPR@95%TPR:  0.87
+fashion_mnist  using  logits_ens_var ,  AUROC:  0.6231   AP:  0.6711  FPR@95%TPR:  0.92
+fashion_mnist nsd by normal  using  logits_ens_var ,  AUROC:  0.6619   AP:  0.7086  FPR@95%TPR:  0.905
+normal_noise  using  logits_ens_var ,  AUROC:  0.6634   AP:  0.5435  FPR@95%TPR:  0.51
+uniform_noise  using  logits_ens_var ,  AUROC:  0.7389   AP:  0.5969  FPR@95%TPR:  0.404
+adv_normal  using  logits_ens_var ,  AUROC:  0.9997   AP:  0.9997  FPR@95%TPR:  0.001
+adv_uniform  using  logits_ens_var ,  AUROC:  0.8669   AP:  0.7514  FPR@95%TPR:  0.252
+
+
+
+
+WITH 4000 EXTRA STEPS
+single model and ensemble of 5 models
+
+mnist nsd by normal  using  single_logits ,  AUROC:  0.9162   AP:  0.8913  FPR@95%TPR:  0.3
+mnist nsd by uniform  using  single_logits ,  AUROC:  0.8794   AP:  0.8528  FPR@95%TPR:  0.441
+mnist nsd by brighten  using  single_logits ,  AUROC:  0.8697   AP:  0.8441  FPR@95%TPR:  0.475
+mnist nsd by hor_flip  using  single_logits ,  AUROC:  0.3870   AP:  0.4136  FPR@95%TPR:  0.953
+mnist nsd by ver_flip  using  single_logits ,  AUROC:  0.4176   AP:  0.4271  FPR@95%TPR:  0.957
+notMNIST  using  single_logits ,  AUROC:  0.9266   AP:  0.8587  FPR@95%TPR:  0.16
+fashion_mnist  using  single_logits ,  AUROC:  0.8088   AP:  0.6804  FPR@95%TPR:  0.374
+fashion_mnist nsd by normal  using  single_logits ,  AUROC:  0.9001   AP:  0.8046  FPR@95%TPR:  0.194
+normal_noise  using  single_logits ,  AUROC:  0.0046   AP:  0.3072  FPR@95%TPR:  1.0
+uniform_noise  using  single_logits ,  AUROC:  0.9493   AP:  0.9471  FPR@95%TPR:  0.237
+adv_normal  using  single_logits ,  AUROC:  0.0072   AP:  0.3081  FPR@95%TPR:  0.998
+adv_uniform  using  single_logits ,  AUROC:  0.2767   AP:  0.3645  FPR@95%TPR:  0.922
+mnist nsd by normal  using  logits_ens_mean ,  AUROC:  0.8617   AP:  0.7967  FPR@95%TPR:  0.371
+mnist nsd by uniform  using  logits_ens_mean ,  AUROC:  0.4816   AP:  0.4624  FPR@95%TPR:  0.899
+mnist nsd by brighten  using  logits_ens_mean ,  AUROC:  0.1415   AP:  0.3289  FPR@95%TPR:  0.993
+mnist nsd by hor_flip  using  logits_ens_mean ,  AUROC:  0.3679   AP:  0.4056  FPR@95%TPR:  0.966
+mnist nsd by ver_flip  using  logits_ens_mean ,  AUROC:  0.4498   AP:  0.4474  FPR@95%TPR:  0.927
+notMNIST  using  logits_ens_mean ,  AUROC:  0.8983   AP:  0.7942  FPR@95%TPR:  0.185
+fashion_mnist  using  logits_ens_mean ,  AUROC:  0.9743   AP:  0.9340  FPR@95%TPR:  0.052
+fashion_mnist nsd by normal  using  logits_ens_mean ,  AUROC:  0.9928   AP:  0.9840  FPR@95%TPR:  0.017
+normal_noise  using  logits_ens_mean ,  AUROC:  0.2149   AP:  0.3465  FPR@95%TPR:  0.985
+uniform_noise  using  logits_ens_mean ,  AUROC:  0.9515   AP:  0.9408  FPR@95%TPR:  0.187
+adv_normal  using  logits_ens_mean ,  AUROC:  0.2875   AP:  0.3695  FPR@95%TPR:  0.857
+adv_uniform  using  logits_ens_mean ,  AUROC:  0.5054   AP:  0.4654  FPR@95%TPR:  0.819
+mnist nsd by normal  using  logits_ens_var ,  AUROC:  0.9576   AP:  0.9622  FPR@95%TPR:  0.223
+mnist nsd by uniform  using  logits_ens_var ,  AUROC:  0.9652   AP:  0.9725  FPR@95%TPR:  0.198
+mnist nsd by brighten  using  logits_ens_var ,  AUROC:  0.9999   AP:  0.9999  FPR@95%TPR:  0.0
+mnist nsd by hor_flip  using  logits_ens_var ,  AUROC:  0.5912   AP:  0.6020  FPR@95%TPR:  0.944
+mnist nsd by ver_flip  using  logits_ens_var ,  AUROC:  0.6147   AP:  0.6379  FPR@95%TPR:  0.947
+notMNIST  using  logits_ens_var ,  AUROC:  0.9985   AP:  0.9987  FPR@95%TPR:  0.0
+fashion_mnist  using  logits_ens_var ,  AUROC:  0.9998   AP:  0.9998  FPR@95%TPR:  0.0
+fashion_mnist nsd by normal  using  logits_ens_var ,  AUROC:  0.9999   AP:  0.9999  FPR@95%TPR:  0.0
+normal_noise  using  logits_ens_var ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+uniform_noise  using  logits_ens_var ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+adv_normal  using  logits_ens_var ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0
+adv_uniform  using  logits_ens_var ,  AUROC:  1.0   AP:  1.0  FPR@95%TPR:  0.0

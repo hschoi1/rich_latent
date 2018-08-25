@@ -3,6 +3,9 @@
 from __future__ import print_function
 import tensorflow as tf
 import pdb
+import matplotlib
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
 import os
 import tensorflow.contrib.layers as ly
 import functools
@@ -385,7 +388,6 @@ logits_list = []
 for model_num in range(5):
     with tf.Session() as sess:
         saver = tf.train.Saver()
-        #saver.restore(sess, FLAGS.model_dir + str(model_num) + '/extra/model.ckpt-0')
         saver.restore(sess, tf.train.latest_checkpoint(FLAGS.model_dir+str(model_num)+'/extra/'))
         '''
         # check if the critic is classifying well
@@ -412,4 +414,50 @@ for model_num in range(5):
 logits_mean = np.mean(logits_list, axis=0)
 logits_var = np.var(logits_list, axis=0)
 results = [logits_list[0], logits_mean, logits_var]
-plot_analysis(results, datasets_names, keys, bins=None, each_size=1000)
+extra_trained = plot_analysis(results, datasets_names, keys, bins=None, each_size=1000)
+
+
+
+not_extra_trained_logits_list = []
+
+for model_num in range(5):
+    with tf.Session() as sess:
+        saver = tf.train.Saver()
+        saver.restore(sess, FLAGS.model_dir + str(model_num) + '/extra/model.ckpt-0')
+        feed_dict = {features: eval_data}
+        fetch_dict = {'true_logit': true_logit}
+        fetched_results = sess.run(fetch_dict, feed_dict)
+        logits = fetched_results['true_logit']
+
+    not_extra_trained_logits_list.append(logits)
+
+
+not_extra_trained_logits_mean = np.mean(not_extra_trained_logits_list, axis=0)
+not_extra_trained_logits_var = np.var(not_extra_trained_logits_list, axis=0)
+not_extra_trained_results = [not_extra_trained_logits_list[0], not_extra_trained_logits_mean, not_extra_trained_logits_var]
+not_extra_trained = plot_analysis(not_extra_trained_results, datasets_names, keys, bins=None, each_size=1000)
+
+ind = np.arange(len(not_extra_trained[0]))
+fig, ax = plt.subplots(1,3,figsize=(15,5))
+rects1 = ax[0].bar(ind, extra_trained[0], width=0.3)
+rects2 = ax[0].bar(ind+0.3, not_extra_trained[0], width=0.3)
+ax[0].set_ylabel('AUROC')
+ax[0].set_xlabel('single_logit')
+ax[0].set_xticks(ind + 0.3 / 2)
+ax[0].set_xticklabels(datasets_names)
+ax[0].legend((rects1[0], rects2[0]), ['extra_trained', 'not_extra_trained'])
+rects1 = ax[1].bar(ind, extra_trained[1], width=0.3)
+rects2 = ax[1].bar(ind+0.3, not_extra_trained[1], width=0.3)
+ax[1].set_ylabel('AUROC')
+ax[1].set_xlabel('ensemble_logit_mean')
+ax[1].set_xticks(ind + 0.3 / 2)
+ax[1].set_xticklabels(datasets_names)
+ax[1].legend((rects1[0], rects2[0]), ['extra_trained', 'not_extra_trained'])
+rects1 = ax[2].bar(ind, extra_trained[2], width=0.3)
+rects2 = ax[2].bar(ind+0.3, not_extra_trained[2], width=0.3)
+ax[2].set_ylabel('AUROC')
+ax[2].set_xlabel('ensemble_logit_var')
+ax[2].set_xticks(ind + 0.3 / 2)
+ax[2].set_xticklabels(datasets_names)
+ax[2].legend((rects1[0], rects2[0]), ['extra_trained', 'not_extra_trained'])
+plt.savefig("auroc_wgan")

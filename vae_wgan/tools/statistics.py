@@ -14,7 +14,7 @@ def FPRat95TPR(labels, predictions):
     for i in range(len(tprs)-1):
         if (tprs[i] < 0.95) and (tprs[i+1] >= 0.95):
             return fprs[i+1]
-
+#NOT USED
 def F1score(labels, predictions, is_mean):
     test_dist = predictions[:1000]  #mnist/cifar10 test set distribution
     preds_normalized = predictions / (test_dist.max() - test_dist.min())
@@ -29,6 +29,9 @@ def F1score(labels, predictions, is_mean):
         masked = preds_normalized < threshold
     f1 = f1_score(y_true=labels, y_pred=masked)
     return f1
+
+
+
 
 def TFstatistics(labels, predictions):
     TP = 0
@@ -95,6 +98,7 @@ def analysis_helper(compare_datasets, expand_last_dim, noised_list, noise_type_l
 def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
     results = np.clip(results, -1e5, 1e5) # clip so that histograms work
     num_dataset = len(datasets_names)
+    auroc_scores = []
     f, axes = plt.subplots(len(results), num_dataset + 1, figsize=(5 * (num_dataset + 1), 5 * len(results)),
                            sharex='row', sharey='row')
     for i, value in enumerate(results):  # iterate over values of each key
@@ -115,6 +119,7 @@ def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
             last_axis.hist(value[:each_size], alpha=0.3, label=datasets_names[0])
 
         this_axis.set_xlabel(keys[i] + " of " + datasets_names[0])
+        auroc_scores_datasets = []
         for index in range(1, num_dataset):
             if len(keys) == 1:
                 this_axis = axes[index]
@@ -138,15 +143,17 @@ def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
 
             predictions = np.concatenate([value[:each_size], value[each_size * index:each_size * (index + 1)]])
             auroc_score = roc_auc_score(y_true=truth, y_score=predictions)
+            auroc_scores_datasets.append(auroc_score)
             ap_score = average_precision_score(y_true=truth, y_score=predictions)
             fpr_at_95tpr = FPRat95TPR(truth, predictions)
-            f1score = F1score(truth, predictions, is_mean)
+            #f1score = F1score(truth, predictions, is_mean)
             print(datasets_names[index], " using ", keys[i], ",  AUROC: ", str(auroc_score)[:6], "  AP: ", str(ap_score)[:6],
-                  " FPR@95%TPR: ", str(fpr_at_95tpr)[:5]," f1: ", str(f1score)[:5])
+                  " FPR@95%TPR: ", str(fpr_at_95tpr)[:5])
         last_axis.set_xlabel(keys[i])
         last_axis.legend()
-
+        auroc_scores.append(auroc_scores_datasets)
     f.savefig("stats")
+    return auroc_scores
 
 # for single model
 def single_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples, model_fn,  model_dir, which_model,
