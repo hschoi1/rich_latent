@@ -1,3 +1,4 @@
+import os
 import pdb
 #from sklearn.utils import shuffle
 import matplotlib
@@ -60,7 +61,7 @@ def print_stats(values, truth, thresholds, name):
 
 
 def analysis_helper(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples,
-                   model_fn,  model_dir, which_model, adv_apply, keys, feature_shape=(28,28), each_size=1000):
+                   model_fn,  model_dir, which_model, adv_apply, keys, feature_shape=(28,28), each_size=1000, checkpoint_step=None):
 
     dataset_dic = {'mnist': tf.keras.datasets.mnist, 'fashion_mnist': tf.keras.datasets.fashion_mnist,
                    'cifar10': tf.keras.datasets.cifar10, 'cifar100': tf.keras.datasets.cifar100,
@@ -80,7 +81,7 @@ def analysis_helper(compare_datasets, expand_last_dim, noised_list, noise_type_l
     input_fn = build_eval_multiple_datasets(converted_datasets, 100, expand_last_dim, noised_list,
                                             noise_type_list, feature_shape, each_size)
 
-    results = fetch(input_fn, model_fn, model_dir, keys, which_model)
+    results = fetch(input_fn, model_fn, model_dir, keys, which_model, checkpoint_step)
 
     if show_adv_examples is not None:
         adv_normal, adv_uniform = adversarial_fetch(get_eval_dataset(compare_datasets[0], 100), 100, model_fn,
@@ -155,6 +156,8 @@ def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
     f.savefig("stats")
     return auroc_scores
 
+    f.savefig(os.path.join(FLAGS.model_dir,"stats"))
+
 # for single model
 def single_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples, model_fn,  model_dir, which_model,
                                                          adv_apply, keys, bins=None, feature_shape=(28,28), each_size=1000):
@@ -167,4 +170,30 @@ def single_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_l
     # and calculate AUROC/AP scores for keys (threshold variables)
     plot_analysis(results, datasets_names, keys, bins, each_size)
 
+def get_scores(ensemble_mean, value, datasets, each_size, is_mean=False):
+    """value is a (1,12000) array of score values (elbo, var, posterior mean Var, etc.) for each dataset against trained model. (e.g. 12 datasets x 1000 scores each).
+    list of dictionary metrics
+
+    value is the scalar we threshold against to perform classification.
+    """
+    # the first dataset is bogus, but we want to save the elbo
+    results = {}
+    for index in range(len(datasets)):
+        if not is_mean:  # points above threshold are anomalous
+            truth = np.concatenate([np.zeros(each_size), np.ones(each_size)])
+        else:
+            # points below threshold are anomalous
+            truth = np.concatenate([np.ones(each_size), np.zeros(each_size)])
+        predictions = np.concatenate([value[:each_size], value[each_size * index:each_size * (index + 1)]])
+        auroc_score = roc_auc_score(y_true=truth, y_score=predictions)
+        ap_score = average_precision_score(y_true=truth, y_score=predictions)
+        fpr_at_95tpr = FPRat95TPR(truth, predictions)
+        d={}
+        d['mean_elbo'] = np.mean(ensemble_mean[each_size * index:each_size * (index + 1)])
+        d['auroc'] = auroc_score
+        d['ap'] = ap_score
+        d['fpr@95tpr'] = fpr_at_95tpr
+        dataset_name = datasets[index]
+        results[dataset_name] = d
+    return results
 

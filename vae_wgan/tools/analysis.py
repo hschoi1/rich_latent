@@ -1,3 +1,5 @@
+import pickle
+import os
 from absl import flags
 from tools.get_data import *
 from tools.statistics import *
@@ -8,21 +10,24 @@ FLAGS = tf.app.flags.FLAGS
 params = FLAGS.flag_values_dict()
 
 # restore ckpt from i th model in model_dir and calculate the values of keys
-def fetch(input_fn, model_fn, model_dir, keys,  i):
+def fetch(input_fn, model_fn, model_dir, keys,  i, checkpoint_step):
 
     model_dir = model_dir + str(i)
     print('Evaluating eval samples for %s' % model_dir)
-    assert tf.train.latest_checkpoint(model_dir) is not None
+    if checkpoint_step is None:
+        checkpoint_path = tf.train.latest_checkpoint(model_dir)
+        assert checkpoint_path is not None
+    else:
+        checkpoint_path = os.path.join(model_dir, 'model.ckpt-%d' % checkpoint_step)
 
     estimator = tf.estimator.Estimator(
         model_fn,
-        params=params,
-        config=tf.estimator.RunConfig(
-            model_dir=model_dir, ))
+        params=params)
 
     batch_results_ = list(estimator.predict(
         input_fn,
         predict_keys=keys,
+        checkpoint_path=checkpoint_path,
         yield_single_examples=False))
 
     tuples = []
@@ -204,6 +209,45 @@ def ensemble_analysis(datasets, expand_last_dim,  noised_list, noise_type_list, 
     axes[1].legend()
     plt.legend()
     plt.show()
-    f.savefig("elbo")
+    f.savefig(os.path.join(FLAGS.model_dir,"elbo"))
 
+def history_compare_elbo(datasets, expand_last_dim,  noised_list, noise_type_list, batch_size,
+                 model_fn, model_dir, show_adv, adv_base, feature_shape=(28,28), each_size=1000):
+    """Compute plt.scatter(elbo, auroc) for each checkpoint """
+    from tools.statistics import analysis_helper
+    from tools.statistics import get_scores
+    M = 5
+    f, axes = plt.subplots(1, 2, figsize=(10, 5))
+    step_arr = np.arange(0, FLAGS.max_steps, FLAGS.viz_steps)
 
+    keys = ['elbo', 'approx_posterior_mean', 'approx_posterior_stddev']
+    full_results = {}    
+    # tmp
+    # step_arr = [5000]
+    for step in step_arr:
+        print('step: %d' % step)
+
+        ensemble_elbos = []
+        ensemble_posterior_means = []
+        ensemble_posterior_vars = []
+
+        for i in range(M):
+            single_results, datasets_names = analysis_helper(datasets, expand_last_dim,  noised_list, noise_type_list, None, model_fn,model_dir, i, i, keys, feature_shape, each_size, step)
+            single_elbo = single_results[0]
+            single_posterior_mean = single_results[1]
+            single_posterior_var = single_results[2]
+            ensemble_elbos.append(single_elbo)
+            ensemble_posterior_means.append(single_posterior_mean)
+            ensemble_posterior_vars.append(single_posterior_var)
+        ensemble_elbos = np.array(ensemble_elbos)
+        #ensemble_posterior_means = np.array(ensemble_posterior_means)
+        #ensemble_posterior_vars = np.array(ensemble_posterior_vars)
+        # analyze statistics
+        ensemble_var = np.var(ensemble_elbos, axis=0)
+        ensemble_mean = np.mean(ensemble_elbos, axis=0)
+        # Perform classication based on ensemble var, as a function of ensemble mean scores.
+        results  = get_scores(ensemble_mean, ensemble_var, datasets_names, each_size, False)
+        full_results[step] = results
+    
+    with open(os.path.join(FLAGS.model_dir, 'train_history_scores.pkl'), 'wb') as f:
+      pickle.dump(full_results, f)

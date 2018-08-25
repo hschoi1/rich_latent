@@ -79,22 +79,22 @@ flags.DEFINE_bool(
     default=False,
     help="If true, deletes existing `model_dir` directory.")
 
-
+flags.DEFINE_bool('skip_train', default=False, help='Whether to skip training the model ensembles and go straight to analysis.')
 
 
 
 
 def main(argv):
     del argv
-  
     M = 5  # number of models in ensemble
     for i in range(M):
+        print('Running VAE experiment %d' % i)
         params = FLAGS.flag_values_dict()
         params["activation"] = getattr(tf.nn, params["activation"])
        
         from vae.model import model_fn
-        FLAGS.model_dir = "gs://hyunsun/image_vae/mnist/model%d" % i
-
+        #FLAGS.model_dir = "gs://hyunsun/image_vae/mnist/model%d" % i
+        model_dir = os.path.join(FLAGS.model_dir, str(i))
         if FLAGS.delete_existing and tf.gfile.Exists(FLAGS.model_dir):
             tf.logging.warn("Deleting old log directory at {}".format(FLAGS.model_dir))
             tf.gfile.DeleteRecursively(FLAGS.model_dir)
@@ -110,11 +110,11 @@ def main(argv):
                 save_checkpoints_steps=FLAGS.viz_steps,
             ),
         )
-
-        for _ in range(FLAGS.max_steps // FLAGS.viz_steps):
-            estimator.train(train_input_fn, steps=FLAGS.viz_steps)
-        #    eval_results = estimator.evaluate(eval_input_fn)
-        #    print("Evaluation_results:\n\t%s\n" % eval_results)
+        if not FLAGS.skip_train:
+            estimator.train(train_input_fn, max_steps=FLAGS.max_steps)
+            # Evaluate once after training.
+            eval_results = estimator.evaluate(eval_input_fn)
+            print("Evaluation_results:\n\t%s\n" % eval_results)
 
     
     # plot values of variables defined in keys and plot them for each dataset
@@ -141,19 +141,20 @@ def main(argv):
     #out of the 5 models, which model to use for analysis
     which_model = 0
     expand_last_dim = True  #for MNIST, True, for CIFAR10: False
-    FLAGS.model_dir = "gs://hyunsun/image_vae/mnist/model"
+    #FLAGS.model_dir = "gs://hyunsun/image_vae/mnist/model"
 
     #for single models
-    single_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples, model_fn, FLAGS.model_dir, which_model,
-             which_model, keys, bins)  # for cifar10, attach feature_shape=(32,32,3)
+    #single_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples, model_fn, FLAGS.model_dir, which_model, which_model, keys, bins)  # for cifar10, attach feature_shape=(32,32,3)
 
     #which model to use to create adversarially perturbed noise for ensemble analysis
     adv_base = 0
 
     #for ensembles
-    ensemble_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size,
-                                                 model_fn, FLAGS.model_dir, show_adv_examples, adv_base)
+    #ensemble_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size, model_fn, FLAGS.model_dir, show_adv_examples, adv_base)
                                                    # for cifar10, attach feature_shape=(32,32,3)
+    # history analysis
+    history_compare_elbo(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size, model_fn, FLAGS.model_dir, show_adv_examples, adv_base)
+
 if __name__ == "__main__":
     tf.app.run()
 
