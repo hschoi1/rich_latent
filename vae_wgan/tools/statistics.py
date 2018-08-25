@@ -153,10 +153,9 @@ def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
         last_axis.set_xlabel(keys[i])
         last_axis.legend()
         auroc_scores.append(auroc_scores_datasets)
-    f.savefig("stats")
-    return auroc_scores
 
     f.savefig(os.path.join(FLAGS.model_dir,"stats"))
+    return auroc_scores
 
 # for single model
 def single_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples, model_fn,  model_dir, which_model,
