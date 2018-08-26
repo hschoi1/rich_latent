@@ -78,10 +78,10 @@ def plot_ensemble_stats(eval_input_fn, model_fn, model_dir):
 
 # adversarially perturb a normal/uniform noise and get the adversarial example from base_model
 # and calculate the values of keys for the adversarial example using apply_model
-def adversarial_fetch(eval_input_fn, batch_size, model_fn, model_dir, keys, base_model, apply_model):
+def adversarial_fetch(eval_input_fn, batch_size, model_fn, model_dir, keys, base_model, apply_model, checkpoint_step=None):
     adv_keys = ['adversarial_normal_noise', 'adversarial_uniform_noise']
 
-    fetched = fetch(eval_input_fn, model_fn, model_dir, adv_keys, base_model)
+    fetched = fetch(eval_input_fn, model_fn, model_dir, adv_keys, base_model, checkpoint_step)
     adversarial_normal_noise_results = fetched[0]
     adversarial_uniform_noise_results = fetched[1]
     adv_normal_eval_dataset = tf.data.Dataset.from_tensor_slices((adversarial_normal_noise_results))
@@ -93,8 +93,8 @@ def adversarial_fetch(eval_input_fn, batch_size, model_fn, model_dir, keys, base
     adv_normal_eval_input_fn = lambda: adv_normal_eval_dataset.make_one_shot_iterator().get_next()
     adv_uniform_eval_input_fn = lambda: adv_uniform_eval_dataset.make_one_shot_iterator().get_next()
 
-    adversarial_normal_noise_results = fetch(adv_normal_eval_input_fn, model_fn, model_dir, keys, apply_model)
-    adversarial_uniform_noise_results = fetch(adv_uniform_eval_input_fn, model_fn, model_dir, keys, apply_model)
+    adversarial_normal_noise_results = fetch(adv_normal_eval_input_fn, model_fn, model_dir, keys, apply_model, checkpoint_step)
+    adversarial_uniform_noise_results = fetch(adv_uniform_eval_input_fn, model_fn, model_dir, keys, apply_model, checkpoint_step)
 
     return adversarial_normal_noise_results, adversarial_uniform_noise_results
 
@@ -122,7 +122,7 @@ def ensemble_analysis(datasets, expand_last_dim,  noised_list, noise_type_list, 
                  model_fn, model_dir, show_adv, adv_base, feature_shape=(28,28), each_size=1000):
     from tools.statistics import analysis_helper
     M = 5
-    f, axes = plt.subplots(1, 2, figsize=(10, 5))
+    f, axes = plt.subplots(1, 2, figsize=(12, 5))
 
     keys = ['elbo']
     ensemble_elbos = []
@@ -138,9 +138,10 @@ def ensemble_analysis(datasets, expand_last_dim,  noised_list, noise_type_list, 
     # histogram of elbo of the last model on different datasets
     if each_size==1000:
         bin_range = (-2000, 1000)
+        bin_dict = {'single_elbo':(-2000, 1000,300), 'ensemble_elbo_mean':(-2000, 1000,300)}
     else:
-        bin_range = (-200, 0)
-
+        bin_range = (-100, 0)
+        bin_dict = {'single_elbo': (-100, 0, 300), 'ensemble_elbo_mean': (-100, 0, 300)}
     bins = 300
     for i in range(len(datasets)):
         label = datasets_names[i]
@@ -192,12 +193,11 @@ def ensemble_analysis(datasets, expand_last_dim,  noised_list, noise_type_list, 
 
 
     from tools.statistics import plot_analysis
-    plot_analysis(ensemble_results, datasets_names, ensemble_keys, each_size=each_size)
+    plot_analysis(ensemble_results, datasets_names, ensemble_keys, bins=bin_dict, each_size=each_size)
 
     # adjust range
     axes[0].set_xlabel('single ELBO of each dataset')
     axes[0].set_ylabel('frequency')
-    axes[0].legend()
     axes[1].set_xlabel('ELBO of single model')
     axes[1].set_ylabel('ensemble variance')
     if each_size==1000:
@@ -206,10 +206,9 @@ def ensemble_analysis(datasets, expand_last_dim,  noised_list, noise_type_list, 
         top = 500
     axes[1].set_xlim(bin_range)
     axes[1].set_ylim(bottom=0, top=top)
-    axes[1].legend()
-    plt.legend()
+    axes[1].legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.show()
-    f.savefig(os.path.join(FLAGS.model_dir,"elbo"))
+    f.savefig(os.path.join(FLAGS.model_dir,"elbo"), bbox_inches="tight")
 
 def history_compare_elbo(datasets, expand_last_dim,  noised_list, noise_type_list, batch_size,
                  model_fn, model_dir, show_adv, adv_base, feature_shape=(28,28), each_size=1000):

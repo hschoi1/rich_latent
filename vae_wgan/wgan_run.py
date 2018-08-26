@@ -3,6 +3,7 @@
 from __future__ import print_function
 import tensorflow as tf
 import pdb
+import pickle
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
@@ -345,14 +346,14 @@ for model_num in range(5):
 from tools.get_data import build_eval_multiple_datasets2
 from tools.statistics import plot_analysis
 
-dataset_list = [tf.keras.datasets.mnist,tf.keras.datasets.mnist,tf.keras.datasets.mnist, tf.keras.datasets.mnist,
+dataset_list = [tf.keras.datasets.mnist, tf.keras.datasets.mnist, tf.keras.datasets.mnist,
                tf.keras.datasets.mnist, tf.keras.datasets.mnist,tf.keras.datasets.mnist,
                'notMNIST', tf.keras.datasets.fashion_mnist, tf.keras.datasets.fashion_mnist, 
                'normal_noise', 'uniform_noise']
                       
-noised_list = [False, False, True, True, True, True, True, False, False,  True, False, False]
+noised_list = [False, True, True, True, True, True, False, False,  True, False, False]
 
-noise_type_list = ['normal', 'normal','normal', 'uniform', 'brighten', 'hor_flip', 'ver_flip', 'normal', 'normal', 'normal',
+noise_type_list = ['normal','normal', 'uniform', 'brighten', 'hor_flip', 'ver_flip', 'normal', 'normal', 'normal',
                    'normal', 'normal']
 
 # construct a np array of all the above datasets, each of which has 1000 samples.
@@ -362,7 +363,7 @@ eval_data = build_eval_multiple_datasets2(dataset_list, expand_last_dim=True, no
 # for plotting labels
 keys = ['single_logits','logits_ens_mean','logits_ens_var']
 
-datasets_names = ['mnist','mnist', 'mnist nsd by normal','mnist nsd by uniform', 'mnist nsd by brighten',
+datasets_names = ['mnist', 'mnist nsd by normal','mnist nsd by uniform', 'mnist nsd by brighten',
                     'mnist nsd by hor_flip', 'mnist nsd by ver_flip', 'notMNIST', 'fashion_mnist',
                      'fashion_mnist nsd by normal', 'normal_noise', 'uniform_noise']
 
@@ -407,16 +408,15 @@ for model_num in range(5):
         fetch_dict = {'true_logit': true_logit}
         fetched_results = sess.run(fetch_dict, feed_dict)
         logits = fetched_results['true_logit']
-
     logits_list.append(logits)
-
 
 logits_mean = np.mean(logits_list, axis=0)
 logits_var = np.var(logits_list, axis=0)
 results = [logits_list[0], logits_mean, logits_var]
 extra_trained = plot_analysis(results, datasets_names, keys, bins=None, each_size=1000)
-
-
+# extra_trained is an array of AUROC of size (3, num of datasets (maybe including adversarial examples))
+# extra_trained[0] is the scores of datasets for single critic logit, [1] for ensmeble mean of the logits
+# [2] is for the ensemble variance of the logits
 
 not_extra_trained_logits_list = []
 
@@ -428,36 +428,38 @@ for model_num in range(5):
         fetch_dict = {'true_logit': true_logit}
         fetched_results = sess.run(fetch_dict, feed_dict)
         logits = fetched_results['true_logit']
-
     not_extra_trained_logits_list.append(logits)
-
 
 not_extra_trained_logits_mean = np.mean(not_extra_trained_logits_list, axis=0)
 not_extra_trained_logits_var = np.var(not_extra_trained_logits_list, axis=0)
 not_extra_trained_results = [not_extra_trained_logits_list[0], not_extra_trained_logits_mean, not_extra_trained_logits_var]
 not_extra_trained = plot_analysis(not_extra_trained_results, datasets_names, keys, bins=None, each_size=1000)
+# not_extra_trained is an array of AUROC of size (3, num of datasets (maybe including adversarial examples))
+# not_extra_trained[0] is the scores of datasets for single critic logit, [1] for ensmeble mean of the logits
+# [2] is for the ensemble variance of the logits
 
 ind = np.arange(len(not_extra_trained[0]))
 fig, ax = plt.subplots(1,3,figsize=(15,5))
-rects1 = ax[0].bar(ind, extra_trained[0], width=0.3)
+rects1 = ax[0].bar(ind, extra_trained[0], width=0.3) # single logits
 rects2 = ax[0].bar(ind+0.3, not_extra_trained[0], width=0.3)
 ax[0].set_ylabel('AUROC')
 ax[0].set_xlabel('single_logit')
-ax[0].set_xticks(ind + 0.3 / 2)
-ax[0].set_xticklabels(datasets_names)
+#ax[0].set_xticks(ind + 0.3 / 2)
+#ax[0].set_xticklabels(datasets_names)
 ax[0].legend((rects1[0], rects2[0]), ['extra_trained', 'not_extra_trained'])
-rects1 = ax[1].bar(ind, extra_trained[1], width=0.3)
+rects1 = ax[1].bar(ind, extra_trained[1], width=0.3)  # ensemble mean
 rects2 = ax[1].bar(ind+0.3, not_extra_trained[1], width=0.3)
 ax[1].set_ylabel('AUROC')
 ax[1].set_xlabel('ensemble_logit_mean')
-ax[1].set_xticks(ind + 0.3 / 2)
-ax[1].set_xticklabels(datasets_names)
+#ax[1].set_xticks(ind + 0.3 / 2)
+#ax[1].set_xticklabels(datasets_names)
 ax[1].legend((rects1[0], rects2[0]), ['extra_trained', 'not_extra_trained'])
-rects1 = ax[2].bar(ind, extra_trained[2], width=0.3)
+rects1 = ax[2].bar(ind, extra_trained[2], width=0.3)  # ensemble var
 rects2 = ax[2].bar(ind+0.3, not_extra_trained[2], width=0.3)
 ax[2].set_ylabel('AUROC')
 ax[2].set_xlabel('ensemble_logit_var')
-ax[2].set_xticks(ind + 0.3 / 2)
-ax[2].set_xticklabels(datasets_names)
+#ax[2].set_xticks(ind + 0.3 / 2)
+#ax[2].set_xticklabels(datasets_names)
 ax[2].legend((rects1[0], rects2[0]), ['extra_trained', 'not_extra_trained'])
-plt.savefig("auroc_wgan")
+
+fig.savefig(os.path.join(FLAGS.model_dir, "auroc_wgans"))

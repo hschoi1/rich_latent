@@ -99,8 +99,9 @@ def analysis_helper(compare_datasets, expand_last_dim, noised_list, noise_type_l
 def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
     results = np.clip(results, -1e5, 1e5) # clip so that histograms work
     num_dataset = len(datasets_names)
+    scores = []
     auroc_scores = []
-    f, axes = plt.subplots(len(results), num_dataset + 1, figsize=(5 * (num_dataset + 1), 5 * len(results)),
+    f, axes = plt.subplots(len(results), num_dataset + 1, figsize=(8 * (num_dataset + 1), 5 * len(results)),
                            sharex='row', sharey='row')
     for i, value in enumerate(results):  # iterate over values of each key
         if len(keys) == 1:
@@ -150,9 +151,15 @@ def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
             #f1score = F1score(truth, predictions, is_mean)
             print(datasets_names[index], " using ", keys[i], ",  AUROC: ", str(auroc_score)[:6], "  AP: ", str(ap_score)[:6],
                   " FPR@95%TPR: ", str(fpr_at_95tpr)[:5])
+            simple_dict = {"dataset": datasets_names[index], "threshold_var": keys[i], "values": value[each_size * index:each_size * (index + 1)],
+                           "AUROC": auroc_score, "AP": ap_score, "FPR@95%TPR": fpr_at_95tpr}
+            scores.append(simple_dict)
         last_axis.set_xlabel(keys[i])
-        last_axis.legend()
+        last_axis.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         auroc_scores.append(auroc_scores_datasets)
+
+    with open(os.path.join(FLAGS.model_dir, 'scores.pkl'), 'wb') as file:
+        pickle.dump(scores, file) # scores of different threshold varaibles
 
     f.savefig(os.path.join(FLAGS.model_dir,"stats"))
     return auroc_scores
