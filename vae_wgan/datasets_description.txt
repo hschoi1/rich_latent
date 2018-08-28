@@ -1,0 +1,111 @@
+1. CREDITCARD
+
+
+credit_card_normal
+- normal points from credit card dataset with values in [0,1]
+
+credit_card_anomalies
+- anomalies from credit card dataset with values  in [0,1]
+
+normal_noise
+- np.random.normal(0,1) 
+- then clipped by [0,1]
+
+uniform_noise
+- np.random.uniform(0,1) 
+- then clipped by [0,1]
+
+adv_normal_noise
+- tf.Normal(0,1) - 0.3 * tf.sign(gradients(loss,input))
+- not clipped
+
+adv_uniform_noise
+- tf.Uniform(0,1) - 0.3 * tf.sign(gradients(loss,input))
+- not clipped
+
+
+
+2. MNIST
+
+mnist
+- mnist with pixel values in [0,1]
+
+mnist nsd by normal
+- mnist + 0.1*np.random.normal(0,1)
+- then clipped by [0,1]
+
+mnist nsd by uniform
+- mnist + 0.1*np.random.uniform(0,1)
+- then clipped by [0,1]
+
+mnist nsd by brighten
+- mnist + 0.1*np.ones
+- then clipped by [0,1]
+
+mnist nsd by hor/ver_flip
+- horzontally/vertically flipped MNIST
+
+notMNIST
+- notMNIST with pixel values in [0,1]
+
+fashion_mnist
+- fashion mnist with pixel values in [0,1]
+
+fashion_mnist nsd by normal
+- mnist + 0.1*np.random.normal(0,1)
+- then clipped by [0,1]
+
+normal_noise
+- np.random.normal(0,1) 
+- then clipped by [0,1]
+
+uniform_noise
+- np.random.uniform(0,1) 
+- then clipped by [0,1]
+
+adv_normal_noise
+- tf.Normal(0,1) - 0.3 * tf.sign(gradients(loss,input))
+- not clipped
+
+adv_uniform_noise
+- tf.Uniform(0,1) - 0.3 * tf.sign(gradients(loss,input))
+- not clipped
+
+
+
+3. CIFAR10 (same as in MNIST)
+
+cifar10
+- cifar10 with pixel values in [0,1]
+
+cifar10 nsd by normal
+- cifar10 + 0.1*np.random.normal(0,1)
+- then clipped by [0,1]
+
+cifar100 
+- cifar100 with pixel values in [0,1]
+
+svhn
+- svhn with pixel values in [0,1]
+
+ImageNet
+- ImageNet with pixel values in [0,1]
+
+celebA
+- celebA with pixel values in [0,1]
+
+normal_noise
+- np.random.normal(0,1) 
+- then clipped by [0,1]
+
+uniform_noise
+- np.random.uniform(0,1) 
+- then clipped by [0,1]
+
+adv_normal_noise
+- tf.Normal(0,1) - 0.3 * tf.sign(gradients(loss,input))
+- not clipped
+
+adv_uniform_noise
+- tf.Uniform(0,1) - 0.3 * tf.sign(gradients(loss,input))
+- not clipped

@@ -121,13 +121,9 @@ with tf.Session() as sess:
     z = np.reshape(results['log_prob'], (20, 20), order='F')  # feed in all the points
     X, Y = np.meshgrid(x, y)
 
-    import pickle
-    fig_handle = plt.figure(figsize=(5, 5))
     plt.contourf(X, Y, z, 20, cmap=plt.cm.bone)
+    plt.savefig('NF_heatmap.eps', format='eps', dpi=1000)
 
-    model_dir = ''
-    with open(model_dir+'/NF_heatmap.pickle', 'wb') as file:
-        pickle.dump(fig_handle, file)
     plt.show()
 
 

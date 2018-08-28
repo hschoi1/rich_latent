@@ -208,7 +208,7 @@ def ensemble_analysis(datasets, expand_last_dim,  noised_list, noise_type_list, 
     axes[1].set_ylim(bottom=0, top=top)
     axes[1].legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.show()
-    f.savefig(os.path.join(FLAGS.model_dir,"elbo"), bbox_inches="tight")
+    f.savefig(os.path.join(FLAGS.model_dir,"elbo.eps"), bbox_inches="tight", format='eps', dpi=1000)
 
 def history_compare_elbo(datasets, expand_last_dim,  noised_list, noise_type_list, batch_size,
                  model_fn, model_dir, show_adv, adv_base, feature_shape=(28,28), each_size=1000):

@@ -1,4 +1,5 @@
 # referred to  https://github.com/Zardinality/WGAN-tensorflow/blob/master/WGAN.ipynb
+# both on MNIST and CIFAR10
 
 from __future__ import print_function
 import tensorflow as tf
@@ -263,7 +264,7 @@ summ_op = tf.summary.merge_all()
 
 
 # data preparation
-(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()  # if train on cifar10, change to mnist to cifar10
 x_train = np.expand_dims(x_train, axis=-1)
 x_train = x_train.astype(np.float32) / 255.
 def next_feed_dict():
@@ -274,7 +275,7 @@ def next_feed_dict():
 
 
 
-FLAGS.model_dir = 'gs://hyunsun/w_gan/mnist/model'
+#FLAGS.model_dir = 'gs://hyunsun/w_gan/mnist/model'
 
 ### TRAINING
 
@@ -320,8 +321,6 @@ for model_num in range(5):
 for model_num in range(5):
     with tf.Session() as sess:
         saver = tf.train.Saver()
-        #saver = tf.train.import_meta_graph(FLAGS.model_dir+str(model_num)+'/model-ckpt-10001.meta')
-        #g = tf.get_default_graph()
         saver.restore(sess, tf.train.latest_checkpoint(FLAGS.model_dir+str(model_num)+'/'))
         summary_writer = tf.summary.FileWriter(FLAGS.model_dir + str(model_num) + '/extra')
     
@@ -360,12 +359,27 @@ noise_type_list = ['normal','normal', 'uniform', 'brighten', 'hor_flip', 'ver_fl
 eval_data = build_eval_multiple_datasets2(dataset_list, expand_last_dim=True, noised_list=noised_list,
                                    noise_type_list=noise_type_list, feature_shape=(28,28), each_size=1000)
 
+
+# if  the model is trained on CIFAR10
+# ANALYSIS-CIFAR10
+
+#dataset_list = [tf.keras.datasets.cifar10, tf.keras.datasets.cifar10, tf.keras.datasets.cifar100, 'SVHN', 'ImageNet', 'celebA',
+#                'normal_noise', 'uniform_noise']
+#noised_list = [False, True, False, False, False, False, False, False]
+#noise_type_list = ['normal', 'normal', 'normal', 'normal', 'normal', 'normal', 'normal', 'normal']
+#eval_data = build_eval_multiple_datasets2(dataset_list, expand_last_dim=False, noised_list=noised_list,
+#                                          noise_type_list=noise_type_list, feature_shape=(32, 32, 3), each_size=1000)
+#datasets_names = ['cifar10','cifar10 nsd by normal', 'cifar100', 'svhn', 'ImageNet', 'celebA', 'normal noise', 'uniform_noise']
+
+
+
 # for plotting labels
 keys = ['single_logits','logits_ens_mean','logits_ens_var']
 
 datasets_names = ['mnist', 'mnist nsd by normal','mnist nsd by uniform', 'mnist nsd by brighten',
                     'mnist nsd by hor_flip', 'mnist nsd by ver_flip', 'notMNIST', 'fashion_mnist',
                      'fashion_mnist nsd by normal', 'normal_noise', 'uniform_noise']
+
 
 show_adv = True
 
@@ -383,7 +397,7 @@ if show_adv:
         datasets_names.append('adv_uniform')
 
 
-### Iterate through all the models and collect logits
+### Iterate through all the extra trained models and collect logits
 logits_list = []
 
 for model_num in range(5):
@@ -418,6 +432,8 @@ extra_trained = plot_analysis(results, datasets_names, keys, bins=None, each_siz
 # extra_trained[0] is the scores of datasets for single critic logit, [1] for ensmeble mean of the logits
 # [2] is for the ensemble variance of the logits
 
+
+### Iterate through all the not extra trained models and collect logits
 not_extra_trained_logits_list = []
 
 for model_num in range(5):
@@ -434,27 +450,27 @@ not_extra_trained_logits_mean = np.mean(not_extra_trained_logits_list, axis=0)
 not_extra_trained_logits_var = np.var(not_extra_trained_logits_list, axis=0)
 not_extra_trained_results = [not_extra_trained_logits_list[0], not_extra_trained_logits_mean, not_extra_trained_logits_var]
 not_extra_trained = plot_analysis(not_extra_trained_results, datasets_names, keys, bins=None, each_size=1000)
-# not_extra_trained is an array of AUROC of size (3, num of datasets (maybe including adversarial examples))
+# not_extra_trained is an array of AUROC of size (3, num of OOD datasets (maybe including adversarial examples))
 # not_extra_trained[0] is the scores of datasets for single critic logit, [1] for ensmeble mean of the logits
 # [2] is for the ensemble variance of the logits
 
 ind = np.arange(len(not_extra_trained[0]))
 fig, ax = plt.subplots(1,3,figsize=(15,5))
-rects1 = ax[0].bar(ind, extra_trained[0], width=0.3) # single logits
+rects1 = ax[0].bar(ind, extra_trained[0], width=0.3) # auroc of single logits
 rects2 = ax[0].bar(ind+0.3, not_extra_trained[0], width=0.3)
 ax[0].set_ylabel('AUROC')
 ax[0].set_xlabel('single_logit')
 #ax[0].set_xticks(ind + 0.3 / 2)
 #ax[0].set_xticklabels(datasets_names)
 ax[0].legend((rects1[0], rects2[0]), ['extra_trained', 'not_extra_trained'])
-rects1 = ax[1].bar(ind, extra_trained[1], width=0.3)  # ensemble mean
+rects1 = ax[1].bar(ind, extra_trained[1], width=0.3)  # auroc of ensemble mean
 rects2 = ax[1].bar(ind+0.3, not_extra_trained[1], width=0.3)
 ax[1].set_ylabel('AUROC')
 ax[1].set_xlabel('ensemble_logit_mean')
 #ax[1].set_xticks(ind + 0.3 / 2)
 #ax[1].set_xticklabels(datasets_names)
 ax[1].legend((rects1[0], rects2[0]), ['extra_trained', 'not_extra_trained'])
-rects1 = ax[2].bar(ind, extra_trained[2], width=0.3)  # ensemble var
+rects1 = ax[2].bar(ind, extra_trained[2], width=0.3)  # auroc of ensemble var
 rects2 = ax[2].bar(ind+0.3, not_extra_trained[2], width=0.3)
 ax[2].set_ylabel('AUROC')
 ax[2].set_xlabel('ensemble_logit_var')
@@ -462,4 +478,22 @@ ax[2].set_xlabel('ensemble_logit_var')
 #ax[2].set_xticklabels(datasets_names)
 ax[2].legend((rects1[0], rects2[0]), ['extra_trained', 'not_extra_trained'])
 
-fig.savefig(os.path.join(FLAGS.model_dir, "auroc_wgans"))
+fig.savefig(os.path.join(FLAGS.model_dir, "auroc_wgans.eps"), format='eps', dpi=1000)
+
+
+#if want a different version of the same plot where each subplot represents each dataset
+
+ind = np.arange(2)
+fig, ax = plt.subplots(1,len(not_extra_trained[0]),figsize=(5*len(not_extra_trained[0]),5))
+for i in range(len(not_extra_trained[0])):
+    rects1 = ax[i].bar(ind[0], extra_trained[1][i], width=0.3, color='b')  # auroc of ensemble mean
+    rects2 = ax[i].bar(ind[0] + 0.3, not_extra_trained[1][i], width=0.3, color='y')
+    rects1 = ax[i].bar(ind[1], extra_trained[2][i], width=0.3, color='b')  # auroc of ensemble var
+    rects2 = ax[i].bar(ind[1] + 0.3, not_extra_trained[2][i], width=0.3, color='y')
+    ax[i].set_ylabel('AUROC')
+    ax[i].set_xticks(ind+0.5)
+    ax[i].set_xticklabels(['ensemble_logit_mean     ensmeble_logit_var'])
+    ax[i].legend((rects1[0], rects2[0]), ['extra_trained', 'not_extra_trained'])
+    ax[i].set_title(datasets_names[i+1])  # exclude the base distribuiton (just plain mnist)
+
+fig.savefig(os.path.join(FLAGS.model_dir, "auroc_wgans_version2.eps"), format='eps', dpi=1000)

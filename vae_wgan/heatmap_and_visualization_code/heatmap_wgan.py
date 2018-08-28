@@ -332,7 +332,7 @@ X, Y = np.meshgrid(x, y)
 for i in range(4):  # each single model
     axes[0,i].contourf(X, Y, ensemble[i], 20, cmap=plt.cm.bone)
     axes[2,i].scatter(generated_collect[i][:, 0], generated_collect[i][:, 1], alpha=0.1, label=str(i))
-z=np.mean(ensemble,axis=0)
+z=np.mean(ensemble,axis=0)  # if want to plot variance, change this to np.var
 generated_mean = np.mean(generated_collect, axis=0)
 axes[0,4].contourf(X, Y, z, 20, cmap=plt.cm.bone)
 axes[2,4].scatter(generated_mean[:, 0], generated_mean[:, 1], alpha=0.1)
@@ -357,7 +357,5 @@ for i in range(4):
 z=np.mean(ensemble,axis=0)
 axes[1,4].contourf(X, Y, z, 20, cmap=plt.cm.bone)
 
-with open(FLAGS.model_dir+'/wgan_heatmap.pickle','wb') as file:
-    pickle.dump(fig, file)
-
+fig.savefig('wgan_heatmap.eps', format='eps', dpi=1000)
 plt.show()

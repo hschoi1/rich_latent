@@ -87,12 +87,10 @@ def analysis_helper(compare_datasets, expand_last_dim, noised_list, noise_type_l
         adv_normal, adv_uniform = adversarial_fetch(get_eval_dataset(compare_datasets[0], 100), 100, model_fn,
                                                     model_dir, keys, which_model, adv_apply)
 
-        if show_adv_examples == 'normal':
-            datasets_names.append('adv normal noise')
-            results = np.concatenate([results, adv_normal], axis=1)
-        elif show_adv_examples == 'uniform':
-            datasets_names.append('adv uniform noise')
-            results = np.concatenate([results, adv_uniform], axis=1)
+
+        datasets_names.append('adv normal noise')
+        datasets_names.append('adv uniform noise')
+        results = np.concatenate([results, adv_normal, adv_uniform], axis=1)
 
     return results, datasets_names
 
@@ -161,7 +159,7 @@ def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
     with open(os.path.join(FLAGS.model_dir, 'scores.pkl'), 'wb') as file:
         pickle.dump(scores, file) # scores of different threshold varaibles
 
-    f.savefig(os.path.join(FLAGS.model_dir,"stats"))
+    f.savefig(os.path.join(FLAGS.model_dir,"stats.eps"), format='eps', dpi=1000)
     return auroc_scores
 
 # for single model
