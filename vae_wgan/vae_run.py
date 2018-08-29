@@ -121,8 +121,12 @@ def main(argv):
 
     # keys are threshold variables
     keys = ['elbo']
+
+    # the first dataset in compare_datasets is the base distribution we use
+    # to compare Out of distribution samples against. Should be the same as the training dataset
     compare_datasets = ['mnist', 'mnist', 'mnist', 'mnist', 'mnist', 'mnist', 'notMNIST', 'fashion_mnist',
                         'fashion_mnist', 'normal_noise', 'uniform_noise']
+
     # whether to noise each dataset or not
     noised_list = [False, True, True, True, True, True, False, False, True, False, False]
     # if the element in noised_list is true for a dataset then what kind of noise/transformations to apply?
@@ -138,7 +142,7 @@ def main(argv):
     #if there is a specific range to look at, add a tuple of (low, high, #of bins) for the value
     bins = {'elbo':(-2000,1000,300)}
    
-    #out of the 5 models, which model to use for analysis
+    #out of the 5 models, which model to use for single analysis
     which_model = 0
     expand_last_dim = True  #for MNIST, True, for CIFAR10: False
     #FLAGS.model_dir = "gs://hyunsun/image_vae/mnist/model"

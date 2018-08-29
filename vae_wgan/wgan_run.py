@@ -345,6 +345,8 @@ for model_num in range(5):
 from tools.get_data import build_eval_multiple_datasets2
 from tools.statistics import plot_analysis
 
+# the first dataset in dataset_list is the base distribution we use
+# to compare Out of distribution samples against. Should be the same as the training dataset
 dataset_list = [tf.keras.datasets.mnist, tf.keras.datasets.mnist, tf.keras.datasets.mnist,
                tf.keras.datasets.mnist, tf.keras.datasets.mnist,tf.keras.datasets.mnist,
                'notMNIST', tf.keras.datasets.fashion_mnist, tf.keras.datasets.fashion_mnist, 

@@ -11,33 +11,38 @@ WGAN_heatmap_single_models.eps
 
 -heatmap of 4 single models with extra training.  Each model is trained and extra trained on the target distribution, 
 which is a multivariate gaussian centered at (5,5) with std 1
+cropped from wgan_heatmap.eps which is obtained by running heatmap_wgan.py
 
 WGAN_heatmap_ensemble_mean.eps
 
 -Taking ensemble mean of the probabilities of above 4 single models
+cropped from wgan_heatmap.eps which is obtained by running heatmap_wgan.py
 
 WGAN_heatmap_ensemble_variance.eps
 
 -Taking ensemble variance of the probabilities of above 4 single models
-
+cropped from wgan_heatmap.eps which is obtained by running heatmap_wgan.py
 
 
 creditcard_single_elbo.eps
 
 -ELBOs of single model trained on creditcard dataset
+cropped from stats.eps which is obtained by running ensemble_analysis
 
 creditcard_ensemble_elbo_mean.eps
 
 -ELBOs of ensemble of 5 models.
-
+cropped from stats.eps which is obtained by running ensemble_analysis
 
 VAE_mnist_single_elbo.eps
 
 -ELBOs of single model trained on MNIST
+cropped from stats.eps which is obtained by running ensemble_analysis
 
 VAE_mnist_ensemble_elbo_mean.eps
 
 -ensemble mean of elbos of 5 models.
+cropped from stats.eps which is obtained by running ensemble_analysis
 
 
 WGAN_mnist_auroc.eps
@@ -61,12 +66,16 @@ The order of datasets is
 11.adv_normal_noise
 12.adv_uniform_noise
 
+The image is obtained by running wgan_run.py
+
+
 WGAN_mnist_auroc_version2.eps
 
 -Same as WGAN_mnist_auroc.eps, 
 but each subplot represents each dataset and is labeled with the name of the dataset. 
 In each subplot, there are AUROC comparisons of with/without extra training using ensemble mean and ensemble variance.
 
+The image is obtained by running wgan_run.py
 
 
 WGAN_cifar10_auroc.eps
@@ -88,6 +97,9 @@ The order of datasets is
 8.adv_normal
 9.adv_uniform
 
+The image is obtained by running wgan_run.py
+
+
 
 WGAN_cifar10_auroc_version2.eps
 
@@ -95,4 +107,4 @@ WGAN_cifar10_auroc_version2.eps
 but each subplot represents each dataset and is labeled with the name of the dataset.  
 In each subplot, there are AUROC comparisons of with/without extra training using ensemble mean and ensemble variance.
 
-
+The image is obtained by running wgan_run.py
