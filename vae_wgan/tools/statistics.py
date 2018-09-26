@@ -15,6 +15,12 @@ def FPRat95TPR(labels, predictions):
     for i in range(len(tprs)-1):
         if (tprs[i] < 0.95) and (tprs[i+1] >= 0.95):
             return fprs[i+1]
+
+def FPRat99TPR(labels, predictions):
+    fprs, tprs, thresholds = roc_curve(y_true=labels, y_score=predictions, drop_intermediate=False)
+    for i in range(len(tprs) - 1):
+        if (tprs[i] < 0.99) and (tprs[i + 1] >= 0.99):
+            return fprs[i+1]
 #NOT USED
 def F1score(labels, predictions, is_mean):
     test_dist = predictions[:1000]  #mnist/cifar10 test set distribution
@@ -65,7 +71,7 @@ def analysis_helper(compare_datasets, expand_last_dim, noised_list, noise_type_l
 
     dataset_dic = {'mnist': tf.keras.datasets.mnist, 'fashion_mnist': tf.keras.datasets.fashion_mnist,
                    'cifar10': tf.keras.datasets.cifar10, 'cifar100': tf.keras.datasets.cifar100,
-                   'ImageNet':'ImageNet', 'SVHN':'SVHN','notMNIST':'notMNIST', 'celebA':'celebA',
+                   'ImageNet':'ImageNet', 'SVHN':'SVHN','notMNIST':'notMNIST', 'celebA':'celebA', 'omniglot':'omniglot',
                    'normal_noise': 'normal_noise','uniform_noise': 'uniform_noise',
                    'credit_card_normal':'credit_card_normal','credit_card_anomalies':'credit_card_anomalies'}
 
@@ -146,9 +152,10 @@ def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
             auroc_scores_datasets.append(auroc_score)
             ap_score = average_precision_score(y_true=truth, y_score=predictions)
             fpr_at_95tpr = FPRat95TPR(truth, predictions)
+            fpr_at_99tpr = FPRat99TPR(truth, predictions)
             #f1score = F1score(truth, predictions, is_mean)
             print(datasets_names[index], " using ", keys[i], ",  AUROC: ", str(auroc_score)[:6], "  AP: ", str(ap_score)[:6],
-                  " FPR@95%TPR: ", str(fpr_at_95tpr)[:5])
+                  " FPR@95%TPR: ", str(fpr_at_95tpr)[:6], " FPR@99%TPR: ", str(fpr_at_99tpr)[:6])
             simple_dict = {"dataset": datasets_names[index], "threshold_var": keys[i], "values": value[each_size * index:each_size * (index + 1)],
                            "AUROC": auroc_score, "AP": ap_score, "FPR@95%TPR": fpr_at_95tpr}
             scores.append(simple_dict)

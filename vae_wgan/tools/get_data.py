@@ -53,19 +53,20 @@ def credit_dataset_helper():
     n_anormal = anormal.shape[0]  # 492
     normal_X = whole[:-n_anormal]
     anormal_X = whole[-n_anormal:]
-    return normal_X, anormal_X
+    np.random.seed(seed=0)  # make sure test_normal_X is always the same
+    np.random.shuffle(normal_X)
+    train_normal_X = normal_X[:-n_anormal]
+    test_normal_X = normal_X[-n_anormal:]
+    return train_normal_X, test_normal_X, anormal_X
 
 def build_credit_dataset(batch_size, noise=False, noise_type='normal'):
 
-    normal_X, anormal_X = credit_dataset_helper()
+    train_normal_X, test_normal_X, anormal_X = credit_dataset_helper()
     # split into train/test splits
-    np.random.shuffle(normal_X)
     n_anormal = anormal_X.shape[0]  # 492
-    test_normal_X = normal_X[:n_anormal]
-    train_normal_X = normal_X[n_anormal:]
 
     dataset = tf.data.Dataset.from_tensor_slices((train_normal_X, np.zeros(train_normal_X.shape[0])))
-    dataset = dataset.shuffle(buffer_size=256)
+    dataset = dataset.shuffle(buffer_size=train_normal_X.shape[0])
     dataset = dataset.repeat()
     dataset = dataset.batch(batch_size)
 
@@ -137,11 +138,15 @@ def build_eval_helper(dataset, expand_last_dim=False, noised=False, noise_type='
     elif dataset == 'celebA':
         x_test = np.load('data/celeba.npy')
 
+    elif dataset == 'omniglot':
+        x_test = np.load('data/omniglot.npy')
+
     elif dataset == 'credit_card_normal':
-        x_test = credit_dataset_helper()[0] * 255.  #will be divided by 255 later
+        # x_test = test_normal_X and is of size 492
+        x_test = credit_dataset_helper()[1] * 255.  #will be divided by 255 later
 
     elif dataset == 'credit_card_anomalies':
-        x_test = credit_dataset_helper()[1] * 255.
+        x_test = credit_dataset_helper()[2] * 255.
     else:
         _, (x_test, _) = dataset.load_data()
 

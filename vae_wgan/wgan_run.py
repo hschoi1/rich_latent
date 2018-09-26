@@ -350,12 +350,12 @@ from tools.statistics import plot_analysis
 dataset_list = [tf.keras.datasets.mnist, tf.keras.datasets.mnist, tf.keras.datasets.mnist,
                tf.keras.datasets.mnist, tf.keras.datasets.mnist,tf.keras.datasets.mnist,
                'notMNIST', tf.keras.datasets.fashion_mnist, tf.keras.datasets.fashion_mnist, 
-               'normal_noise', 'uniform_noise']
+               'normal_noise', 'uniform_noise', 'omniglot']
                       
-noised_list = [False, True, True, True, True, True, False, False,  True, False, False]
+noised_list = [False, True, True, True, True, True, False, False,  True, False, False, False]
 
 noise_type_list = ['normal','normal', 'uniform', 'brighten', 'hor_flip', 'ver_flip', 'normal', 'normal', 'normal',
-                   'normal', 'normal']
+                   'normal', 'normal', 'normal']
 
 # construct a np array of all the above datasets, each of which has 1000 samples.
 eval_data = build_eval_multiple_datasets2(dataset_list, expand_last_dim=True, noised_list=noised_list,
@@ -380,7 +380,7 @@ keys = ['single_logits','logits_ens_mean','logits_ens_var']
 
 datasets_names = ['mnist', 'mnist nsd by normal','mnist nsd by uniform', 'mnist nsd by brighten',
                     'mnist nsd by hor_flip', 'mnist nsd by ver_flip', 'notMNIST', 'fashion_mnist',
-                     'fashion_mnist nsd by normal', 'normal_noise', 'uniform_noise']
+                     'fashion_mnist nsd by normal', 'normal_noise', 'uniform_noise', 'omniglot']
 
 
 show_adv = True

@@ -187,9 +187,9 @@ def ensemble_analysis(datasets, expand_last_dim,  noised_list, noise_type_list, 
 
     ensemble_mean = np.mean(ensemble_elbos, axis=0)
     ensemble_var = np.var(ensemble_elbos, axis=0)
-
-    ensemble_keys = ['single_elbo', 'ensemble_elbo_mean', 'ensemble_elbo_var']
-    ensemble_results = [single_elbo, ensemble_mean, ensemble_var]
+    WAIC = ensemble_mean - ensemble_var
+    ensemble_keys = ['single_elbo', 'ensemble_elbo_mean', 'ensemble_elbo_var', 'WAIC']
+    ensemble_results = [single_elbo, ensemble_mean, ensemble_var, WAIC]
 
 
     from tools.statistics import plot_analysis

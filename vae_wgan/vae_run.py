@@ -125,15 +125,15 @@ def main(argv):
     # the first dataset in compare_datasets is the base distribution we use
     # to compare Out of distribution samples against. Should be the same as the training dataset
     compare_datasets = ['mnist', 'mnist', 'mnist', 'mnist', 'mnist', 'mnist', 'notMNIST', 'fashion_mnist',
-                        'fashion_mnist', 'normal_noise', 'uniform_noise']
+                        'fashion_mnist', 'normal_noise', 'uniform_noise', 'omniglot']
 
     # whether to noise each dataset or not
-    noised_list = [False, True, True, True, True, True, False, False, True, False, False]
+    noised_list = [False, True, True, True, True, True, False, False, True, False, False, False]
     # if the element in noised_list is true for a dataset then what kind of noise/transformations to apply?
     # if the above element is set False, any noise/transformation will not be processed.
 
     noise_type_list = ['normal', 'normal', 'uniform', 'brighten', 'hor_flip', 'ver_flip', 'normal', 'normal', 'normal',
-                       'normal', 'normal']
+                       'normal', 'normal', 'normal']
 
     # whether to add adversarially perturbed noise
     # if perturbed normal noise: normal, if perturbed uniform noise: uniform , if nothing: None
