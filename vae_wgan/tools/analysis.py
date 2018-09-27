@@ -124,7 +124,7 @@ def ensemble_analysis(datasets, expand_last_dim,  noised_list, noise_type_list, 
     M = 5
     f, axes = plt.subplots(1, 2, figsize=(12, 5))
 
-    keys = ['elbo']
+    keys = ['elbo']  # or rate
     ensemble_elbos = []
     for i in range(M):
         single_results, datasets_names = analysis_helper(datasets, expand_last_dim,  noised_list, noise_type_list, None,
