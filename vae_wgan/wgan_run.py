@@ -376,7 +376,7 @@ eval_data = build_eval_multiple_datasets2(dataset_list, expand_last_dim=True, no
 
 
 # for plotting labels
-keys = ['single_logits','logits_ens_mean','logits_ens_var']
+keys = ['single_logits','logits_ens_mean','logits_ens_var', 'WAIC']
 
 datasets_names = ['mnist', 'mnist nsd by normal','mnist nsd by uniform', 'mnist nsd by brighten',
                     'mnist nsd by hor_flip', 'mnist nsd by ver_flip', 'notMNIST', 'fashion_mnist',
@@ -428,7 +428,8 @@ for model_num in range(5):
 
 logits_mean = np.mean(logits_list, axis=0)
 logits_var = np.var(logits_list, axis=0)
-results = [logits_list[0], logits_mean, logits_var]
+waic = logits_mean - logits_var
+results = [logits_list[0], logits_mean, logits_var, waic]
 extra_trained = plot_analysis(results, datasets_names, keys, bins=None, each_size=1000)
 # extra_trained is an array of AUROC of size (3, num of datasets (maybe including adversarial examples))
 # extra_trained[0] is the scores of datasets for single critic logit, [1] for ensmeble mean of the logits
