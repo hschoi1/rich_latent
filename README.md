@@ -1,8 +1,50 @@
-# Uncertainty Estimation and Generative Models
+# Generative Ensembles For Robust Anomaly Detection
 
-Unsupervised Anomaly Detection
+## How To Run/Reproduce the Results
+```
+python something.py --train_dataset="somedataset" --model_dir=somedir
+```
 
-Ensemble of VAEs for detecting out of distribution (OOD) samples
+something.py:
+
+* vae_wgan/anomaly_run.py runs VAE ensemble on creditcard dataset (both training and evaluation)
+
+* vae_wgan/vae_run.py runs VAE ensemble on mnist or fashion_mnist dataset (both training and evaluation)
+
+* vae_wgan/wgan_run.py runs WGAN ensemble on mnist,fashion_mnist, or cifar10 dataset (both training and evaluation)
+
+
+
+"somedataset"(training dataset based on which the models are trained and tested against other OoD datasets):
+
+* for vae_run.py , "mnist" or "fashion_mnist"
+
+* for wgan_run.py, "mnist", "fashion_mnist" or "cifar10"
+
+* for anomaly_run.py,  this doesn't need to be specified as it only runs the creditcard dataset automatically
+
+
+if want to skip training (having already trained models) for evaluation only, add --skip_train=True when running
+
+
+What they give you:
+
+1. VAEs (vae_run.py and anomaly_run.py)
+
+* scores using single IWAE, ensemble mean/var of IWAEs, and WAIC (printed out as 'elbo' but actually means iwae)
+
+* For scores using rate, change keys=['elbo'] to keys=['rate'] around line 127 under ensemble_analysis function in vae_wgan/tools/analysis.py
+
+2. WGANs (wgan_run.py)
+
+* scores using single logits, ensemble mean/var of logits, and WAIC(for WGANs, WAIC here means Ensemble Mean(logits) - Ensemble Var(logits) rather than the actual WAIC)
+
+3. DNN classifier on creditcard dataset
+
+* scores using logits (run anomaly/NNclassifer.py)
+
+
+# For DL Jeju Camp
 
 ## Variational Autoencoder
 
