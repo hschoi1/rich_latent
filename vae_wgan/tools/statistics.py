@@ -140,7 +140,7 @@ def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
 
             this_axis.set_xlabel(keys[i] + " of " + datasets_names[index])
 
-            if 'var' in keys[i]:  # if using rate, this is the case for all(single rate, ens mean, ens var)
+            if ('var' in keys[i]) or ('rate' in keys[i]):
                 is_mean = False  # points above threshold are anomalous
                 truth = np.concatenate([np.zeros(each_size), np.ones(each_size)])
             else:

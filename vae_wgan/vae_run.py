@@ -81,7 +81,10 @@ flags.DEFINE_bool(
 
 flags.DEFINE_bool('skip_train', default=False, help='Whether to skip training the model ensembles and go straight to analysis.')
 
-
+flags.DEFINE_string(
+    "train_dataset",
+    default="mnist",
+    help="mnist/fashion_mnist for VAE, mnist/fashion_mnist/cifar10 for wgan")
 
 
 def main(argv):
@@ -100,7 +103,10 @@ def main(argv):
             tf.gfile.DeleteRecursively(FLAGS.model_dir)
         tf.gfile.MakeDirs(FLAGS.model_dir)
 
-        train_input_fn, eval_input_fn = get_dataset('mnist', FLAGS.batch_size)
+        if FLAGS.train_dataset == "mnist":
+            train_input_fn, eval_input_fn = get_dataset('mnist', FLAGS.batch_size)
+        elif FLAGS.train_dataset == "fashion_mnist":
+            train_input_fn, eval_input_fn = get_dataset('fashion_mnist', FLAGS.batch_size)
 
         estimator = tf.estimator.Estimator(
             model_fn,
@@ -119,21 +125,24 @@ def main(argv):
     
     # plot values of variables defined in keys and plot them for each dataset
 
-    # keys are threshold variables
+    # keys are threshold variables for single_analysis
     keys = ['elbo']
 
     # the first dataset in compare_datasets is the base distribution we use
     # to compare Out of distribution samples against. Should be the same as the training dataset
-    compare_datasets = ['mnist', 'mnist', 'mnist', 'mnist', 'mnist', 'mnist', 'notMNIST', 'fashion_mnist',
-                        'fashion_mnist', 'normal_noise', 'uniform_noise', 'omniglot']
+    if FLAGS.train_dataset == "mnist":
+        compare_datasets = ['mnist', 'omniglot', 'notMNIST', 'fashion_mnist', 'mnist', 'mnist',
+                            'uniform_noise', 'normal_noise']
+    elif FLAGS.train_dataset == "fashion_mnist":
+        compare_datasets = ['fashion_mnist', 'omniglot', 'notMNIST', 'mnist', 'fashion_mnist', 'fashion_mnist', 'uniform_noise',
+                            'normal_noise']
 
     # whether to noise each dataset or not
-    noised_list = [False, True, True, True, True, True, False, False, True, False, False, False]
+    noised_list = [False, False, False, False, True, True, False, False]
     # if the element in noised_list is true for a dataset then what kind of noise/transformations to apply?
     # if the above element is set False, any noise/transformation will not be processed.
 
-    noise_type_list = ['normal', 'normal', 'uniform', 'brighten', 'hor_flip', 'ver_flip', 'normal', 'normal', 'normal',
-                       'normal', 'normal', 'normal']
+    noise_type_list = ['normal', 'normal', 'normal', 'normal', 'hor_flip', 'ver_flip', 'normal', 'normal']
 
     # whether to add adversarially perturbed noise
     # if perturbed normal noise: normal, if perturbed uniform noise: uniform , if nothing: None
@@ -144,20 +153,20 @@ def main(argv):
    
     #out of the 5 models, which model to use for single analysis
     which_model = 0
-    expand_last_dim = True  #for MNIST, True, for CIFAR10: False
+    expand_last_dim = True  #for MNIST/FashionMNIST, True
     #FLAGS.model_dir = "gs://hyunsun/image_vae/mnist/model"
 
     #for single models
-    #single_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples, model_fn, FLAGS.model_dir, which_model, which_model, keys, bins)  # for cifar10, attach feature_shape=(32,32,3)
+    #single_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples, model_fn, FLAGS.model_dir, which_model, which_model, keys, bins)
 
     #which model to use to create adversarially perturbed noise for ensemble analysis
     adv_base = 0
 
     #for ensembles
-    #ensemble_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size, model_fn, FLAGS.model_dir, show_adv_examples, adv_base)
-                                                   # for cifar10, attach feature_shape=(32,32,3)
+    ensemble_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size, model_fn, FLAGS.model_dir, show_adv_examples, adv_base)
+
     # history analysis
-    history_compare_elbo(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size, model_fn, FLAGS.model_dir, show_adv_examples, adv_base)
+    #history_compare_elbo(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size, model_fn, FLAGS.model_dir, show_adv_examples, adv_base)
 
 if __name__ == "__main__":
     tf.app.run()

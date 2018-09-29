@@ -71,6 +71,7 @@ flags.DEFINE_bool(
     default=False,
     help="If true, deletes existing `model_dir` directory.")
 
+flags.DEFINE_bool('skip_train', default=False, help='Whether to skip training the model ensembles and go straight to analysis.')
 
 FLAGS = flags.FLAGS
 
@@ -99,11 +100,11 @@ def main(argv):
                 save_checkpoints_steps=FLAGS.viz_steps,
             ),
         )
-
-        for _ in range(FLAGS.max_steps // FLAGS.viz_steps):
-            estimator.train(train_input_fn, steps=FLAGS.viz_steps)
-            #eval_results = estimator.evaluate(eval_input_fn)
-            #print("Evaluation_results:\n\t%s\n" % eval_results)
+        if not FLAGS.skip_train:
+            for _ in range(FLAGS.max_steps // FLAGS.viz_steps):
+                estimator.train(train_input_fn, steps=FLAGS.viz_steps)
+                #eval_results = estimator.evaluate(eval_input_fn)
+                #print("Evaluation_results:\n\t%s\n" % eval_results)
 
 
     # plot values of variables defined in keys and plot them for each dataset

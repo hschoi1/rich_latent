@@ -78,6 +78,13 @@ flags.DEFINE_string(
     default=os.path.join(os.getenv("TEST_TMPDIR", "/tmp"), "vae/"),
     help="Directory to put the model's fit.")
 
+flags.DEFINE_bool('skip_train', default=False, help='Whether to skip training the model ensembles and go straight to analysis.')
+
+flags.DEFINE_string(
+    "train_dataset",
+    default="mnist",
+    help="mnist/fashion_mnist for VAE, mnist/fashion_mnist/cifar10 for wgan")
+
 
 def make_critic(activation, latent_size, base_depth):
 
@@ -264,8 +271,15 @@ summ_op = tf.summary.merge_all()
 
 
 # data preparation
-(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()  # if train on cifar10, change to mnist to cifar10
-x_train = np.expand_dims(x_train, axis=-1)
+if FLAGS.train_dataset == "mnist":
+    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+    x_train = np.expand_dims(x_train, axis=-1)
+elif FLAGS.train_dataset == "fashion_mnist":
+    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.fashion_mnist.load_data()
+    x_train = np.expand_dims(x_train, axis=-1)
+elif FLAGS.train_dataset == "cifar10":
+    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()  # if train on cifar10, change to mnist to cifar10
+
 x_train = x_train.astype(np.float32) / 255.
 def next_feed_dict():
     choice = np.random.choice(x_train.shape[0], FLAGS.batch_size)
@@ -278,66 +292,66 @@ def next_feed_dict():
 #FLAGS.model_dir = 'gs://hyunsun/w_gan/mnist/model'
 
 ### TRAINING
+if not FLAGS.skip_train:
+    for model_num in range(5):
+        with tf.Session() as sess:
 
-for model_num in range(5):
-    with tf.Session() as sess:
-    
-        saver = tf.train.Saver()
-        summary_writer = tf.summary.FileWriter(FLAGS.model_dir+str(model_num), sess.graph)
+            saver = tf.train.Saver()
+            summary_writer = tf.summary.FileWriter(FLAGS.model_dir+str(model_num), sess.graph)
 
-        sess.run(tf.global_variables_initializer())
+            sess.run(tf.global_variables_initializer())
 
-        for g_update in range(FLAGS.max_steps):
-            if g_update % 5000 == 0:
-                saver.save(sess, FLAGS.model_dir+str(model_num)+'/model.ckpt', global_step=g_update)
+            for g_update in range(FLAGS.max_steps):
+                if g_update % 5000 == 0:
+                    saver.save(sess, FLAGS.model_dir+str(model_num)+'/model.ckpt', global_step=g_update)
 
-            if (g_update < 25) or (g_update % 500 == 0):
-                citers = 100
-            else:
-                citers = 5
+                if (g_update < 25) or (g_update % 500 == 0):
+                    citers = 100
+                else:
+                    citers = 5
 
-            # update critic
-            for i in range(citers):
+                # update critic
+                for i in range(citers):
+                    feed_dict = next_feed_dict()
+                    fetch_dict={'train_op': opt_c, 'loss': c_loss}
+                    results = sess.run(fetch_dict, feed_dict)
+
+                # update generator
                 feed_dict = next_feed_dict()
-                fetch_dict={'train_op': opt_c, 'loss': c_loss}
+                fetch_dict = {'train_op': opt_g, 'loss': g_loss,
+                              'counter_g': counter_g, 'counter_c': counter_c}
                 results = sess.run(fetch_dict, feed_dict)
 
-            # update generator
-            feed_dict = next_feed_dict()
-            fetch_dict = {'train_op': opt_g, 'loss': g_loss,
-                          'counter_g': counter_g, 'counter_c': counter_c}
-            results = sess.run(fetch_dict, feed_dict)
-
-            if g_update % 500 == 0:
-                print('\n')
-                print('counter_c', results['counter_c'], 'counter_g', results['counter_g'])
-                print('\n')
-                summ = sess.run(summ_op, feed_dict)
-                summary_writer.add_summary(summ, g_update)
-### END OF TRAINING
+                if g_update % 500 == 0:
+                    print('\n')
+                    print('counter_c', results['counter_c'], 'counter_g', results['counter_g'])
+                    print('\n')
+                    summ = sess.run(summ_op, feed_dict)
+                    summary_writer.add_summary(summ, g_update)
+    ### END OF TRAINING
 
 
-### EXTRA TRAINING 
-for model_num in range(5):
-    with tf.Session() as sess:
-        saver = tf.train.Saver()
-        saver.restore(sess, tf.train.latest_checkpoint(FLAGS.model_dir+str(model_num)+'/'))
-        summary_writer = tf.summary.FileWriter(FLAGS.model_dir + str(model_num) + '/extra')
-    
-        for extra_step in range(FLAGS.extra_steps):
-            if extra_step % 1000 == 0:
-                saver.save(sess, FLAGS.model_dir+str(model_num)+'/extra/model.ckpt', global_step=extra_step)
+    ### EXTRA TRAINING
+    for model_num in range(5):
+        with tf.Session() as sess:
+            saver = tf.train.Saver()
+            saver.restore(sess, tf.train.latest_checkpoint(FLAGS.model_dir+str(model_num)+'/'))
+            summary_writer = tf.summary.FileWriter(FLAGS.model_dir + str(model_num) + '/extra')
 
-            feed_dict = next_feed_dict()
-            fetch_dict = {'train_op': extra_train_op, 'loss': discrim_loss, 'extra_counter': extra_counter}
-            results = sess.run(fetch_dict, feed_dict)
+            for extra_step in range(FLAGS.extra_steps):
+                if extra_step % 1000 == 0:
+                    saver.save(sess, FLAGS.model_dir+str(model_num)+'/extra/model.ckpt', global_step=extra_step)
 
-            if extra_step % 100 == 0:
-                print(results['loss'], results['extra_counter'])
-                summ = sess.run({'sum': summ_op}, feed_dict)
-                summary_writer.add_summary(summ['sum'], extra_step)
+                feed_dict = next_feed_dict()
+                fetch_dict = {'train_op': extra_train_op, 'loss': discrim_loss, 'extra_counter': extra_counter}
+                results = sess.run(fetch_dict, feed_dict)
 
-### END OF EXTRA TRAINING
+                if extra_step % 100 == 0:
+                    print(results['loss'], results['extra_counter'])
+                    summ = sess.run({'sum': summ_op}, feed_dict)
+                    summary_writer.add_summary(summ['sum'], extra_step)
+
+    ### END OF EXTRA TRAINING
 
 
 ### ANALYSIS-MNIST
@@ -347,42 +361,47 @@ from tools.statistics import plot_analysis
 
 # the first dataset in dataset_list is the base distribution we use
 # to compare Out of distribution samples against. Should be the same as the training dataset
-dataset_list = [tf.keras.datasets.mnist, tf.keras.datasets.mnist, tf.keras.datasets.mnist,
-               tf.keras.datasets.mnist, tf.keras.datasets.mnist,tf.keras.datasets.mnist,
-               'notMNIST', tf.keras.datasets.fashion_mnist, tf.keras.datasets.fashion_mnist, 
-               'normal_noise', 'uniform_noise', 'omniglot']
-                      
-noised_list = [False, True, True, True, True, True, False, False,  True, False, False, False]
+if FLAGS.train_dataset == "mnist":
+    dataset_list = [tf.keras.datasets.mnist, 'omniglot', 'notMNIST',
+                    tf.keras.datasets.fashion_mnist, tf.keras.datasets.mnist, tf.keras.datasets.mnist,
+                    'uniform_noise', 'normal_noise']
+    datasets_names = ['mnist',  'omniglot', 'notMNIST', 'fashion_mnist',
+                      'mnist nsd by hor_flip', 'mnist nsd by ver_flip', 'uniform_noise','normal_noise']
 
-noise_type_list = ['normal','normal', 'uniform', 'brighten', 'hor_flip', 'ver_flip', 'normal', 'normal', 'normal',
-                   'normal', 'normal', 'normal']
+
+elif FLAGS.train_dataset == "fashion_mnist":
+    dataset_list = [tf.keras.datasets.fashion_mnist, 'omniglot', 'notMNIST',
+                    tf.keras.datasets.mnist, tf.keras.datasets.fashion_mnist, tf.keras.datasets.fashion_mnist,
+                    'uniform_noise', 'normal_noise']
+    datasets_names = ['fashion_mnist', 'omniglot', 'notMNIST', 'mnist', 'fashion_mnist nsd by hor_flip',
+                      'fashion_mnist nsd by ver_flip', 'uniform_noise', 'normal_noise']
+
+elif FLAGS.train_dataset == "cifar10":
+    dataset_list = [tf.keras.datasets.cifar10, 'celebA', 'SVHN', 'ImageNet','uniform_noise','normal_noise',
+                    tf.keras.datasets.cifar10,tf.keras.datasets.cifar10]
+    datasets_names = ['cifar10', 'celebA', 'SVHN', 'ImageNet', 'uniform_noise', 'normal noise',
+                      'cifar10 nsd by hor_flip', 'cifar10 Vflip nsd by ver_flip']
+
 
 # construct a np array of all the above datasets, each of which has 1000 samples.
-eval_data = build_eval_multiple_datasets2(dataset_list, expand_last_dim=True, noised_list=noised_list,
+if (FLAGS.train_dataset == "mnist") or (FLAGS.train_dataset == "fashion_mnist"):
+    noised_list = [False, False, False, False, True, True, False, False]
+    noise_type_list = ['normal', 'normal', 'normal', 'normal', 'hor_flip', 'ver_flip', 'normal', 'normal']
+    eval_data = build_eval_multiple_datasets2(dataset_list, expand_last_dim=True, noised_list=noised_list,
                                    noise_type_list=noise_type_list, feature_shape=(28,28), each_size=1000)
 
+elif FLAGS.train_dataset == "cifar10":
+    noised_list = [False, False, False, False, False, False, True, True]
+    noise_type_list = ['normal', 'normal', 'normal', 'normal', 'normal', 'normal', 'hor_flip', 'ver_flip']
+    eval_data = build_eval_multiple_datasets2(dataset_list, expand_last_dim=False, noised_list=noised_list,
+                                          noise_type_list=noise_type_list, feature_shape=(32, 32, 3), each_size=1000)
 
-# if  the model is trained on CIFAR10
-# ANALYSIS-CIFAR10
 
-#dataset_list = [tf.keras.datasets.cifar10, tf.keras.datasets.cifar10, tf.keras.datasets.cifar100, 'SVHN', 'ImageNet', 'celebA',
-#                'normal_noise', 'uniform_noise']
-#noised_list = [False, True, False, False, False, False, False, False]
-#noise_type_list = ['normal', 'normal', 'normal', 'normal', 'normal', 'normal', 'normal', 'normal']
-#eval_data = build_eval_multiple_datasets2(dataset_list, expand_last_dim=False, noised_list=noised_list,
-#                                          noise_type_list=noise_type_list, feature_shape=(32, 32, 3), each_size=1000)
-#datasets_names = ['cifar10','cifar10 nsd by normal', 'cifar100', 'svhn', 'ImageNet', 'celebA', 'normal noise', 'uniform_noise']
 
 
 
 # for plotting labels
 keys = ['single_logits','logits_ens_mean','logits_ens_var', 'WAIC']
-
-datasets_names = ['mnist', 'mnist nsd by normal','mnist nsd by uniform', 'mnist nsd by brighten',
-                    'mnist nsd by hor_flip', 'mnist nsd by ver_flip', 'notMNIST', 'fashion_mnist',
-                     'fashion_mnist nsd by normal', 'normal_noise', 'uniform_noise', 'omniglot']
-
-
 show_adv = True
 
 ### get adversarial examples from model0
@@ -437,6 +456,7 @@ extra_trained = plot_analysis(results, datasets_names, keys, bins=None, each_siz
 
 
 ### Iterate through all the not extra trained models and collect logits
+'''
 not_extra_trained_logits_list = []
 
 for model_num in range(5):
@@ -500,3 +520,4 @@ for i in range(len(not_extra_trained[0])):
     ax[i].set_title(datasets_names[i+1])  # exclude the base distribuiton (just plain mnist)
 
 fig.savefig(os.path.join(FLAGS.model_dir, "auroc_wgans_version2.eps"), format='eps', dpi=1000)
+'''
