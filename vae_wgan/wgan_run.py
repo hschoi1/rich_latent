@@ -1,5 +1,5 @@
 # referred to  https://github.com/Zardinality/WGAN-tensorflow/blob/master/WGAN.ipynb
-# both on MNIST and CIFAR10
+# both on MNIST/FashionMNIST and CIFAR10
 
 from __future__ import print_function
 import tensorflow as tf
@@ -146,7 +146,10 @@ def make_generator(activation, latent_size, output_shape, base_depth):
 
 tf.reset_default_graph()
 ### start graph
-features = tf.placeholder(dtype=tf.float32, shape=[None, 28, 28, 1], name='x')
+if FLAGS.train_dataset == "cifar10":
+    features = tf.placeholder(dtype=tf.float32, shape=[None, 32, 32, 3], name='x')
+else:
+    features = tf.placeholder(dtype=tf.float32, shape=[None, 28, 28, 1], name='x')
 params = FLAGS.flag_values_dict()
 params["activation"] = getattr(tf.nn, params["activation"])
 
@@ -354,7 +357,7 @@ if not FLAGS.skip_train:
     ### END OF EXTRA TRAINING
 
 
-### ANALYSIS-MNIST
+### ANALYSIS
 
 from tools.get_data import build_eval_multiple_datasets2
 from tools.statistics import plot_analysis

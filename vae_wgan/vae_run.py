@@ -96,12 +96,13 @@ def main(argv):
         params["activation"] = getattr(tf.nn, params["activation"])
        
         from vae.model import model_fn
-        #FLAGS.model_dir = "gs://hyunsun/image_vae/mnist/model%d" % i
-        model_dir = os.path.join(FLAGS.model_dir, str(i))
-        if FLAGS.delete_existing and tf.gfile.Exists(FLAGS.model_dir):
-            tf.logging.warn("Deleting old log directory at {}".format(FLAGS.model_dir))
-            tf.gfile.DeleteRecursively(FLAGS.model_dir)
-        tf.gfile.MakeDirs(FLAGS.model_dir)
+        #FLAGS.model_dir = os.path.join(FLAGS.model_dir, str(i))
+        model_dir = FLAGS.model_dir + str(i)
+
+        if FLAGS.delete_existing and tf.gfile.Exists(model_dir):
+            tf.logging.warn("Deleting old log directory at {}".format(model_dir))
+            tf.gfile.DeleteRecursively(model_dir)
+        tf.gfile.MakeDirs(model_dir)
 
         if FLAGS.train_dataset == "mnist":
             train_input_fn, eval_input_fn = get_dataset('mnist', FLAGS.batch_size)
@@ -112,7 +113,7 @@ def main(argv):
             model_fn,
             params=params,
             config=tf.estimator.RunConfig(
-                model_dir=FLAGS.model_dir,
+                model_dir=model_dir,
                 save_checkpoints_steps=FLAGS.viz_steps,
             ),
         )
@@ -154,7 +155,6 @@ def main(argv):
     #out of the 5 models, which model to use for single analysis
     which_model = 0
     expand_last_dim = True  #for MNIST/FashionMNIST, True
-    #FLAGS.model_dir = "gs://hyunsun/image_vae/mnist/model"
 
     #for single models
     #single_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples, model_fn, FLAGS.model_dir, which_model, which_model, keys, bins)
