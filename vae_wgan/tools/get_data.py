@@ -151,8 +151,8 @@ def build_eval_helper(dataset, expand_last_dim=False, noised=False, noise_type='
         _, (x_test, _) = dataset.load_data()
 
 
-    choice = np.random.choice(x_test.shape[0],each_size)
-    x_test = x_test[choice]
+    #choice = np.random.choice(x_test.shape[0],each_size)
+    #x_test = x_test[choice]
     x_test = x_test.astype(np.float32) / 255.
 
     if expand_last_dim:
@@ -190,7 +190,7 @@ def build_keras_dataset(keras_dataset, batch_size, expand_last_dim=False):
     x_test = x_test.astype(np.float32) / 255.
 
     train_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
-    train_dataset = train_dataset.shuffle(buffer_size=x_train.shape[0]).repeat().batch(batch_size)
+    train_dataset = train_dataset.shuffle(batch_size*4).batch(batch_size)
     eval_dataset = tf.data.Dataset.from_tensor_slices((x_test, y_test)).batch(batch_size)
 
     train_input_fn = lambda: train_dataset.repeat().make_one_shot_iterator().get_next()
@@ -204,23 +204,21 @@ def build_eval_dataset(dataset, batch_size, expand_last_dim=False, noised=False,
     x_test = build_eval_helper(dataset, expand_last_dim, noised, noise_type, feature_shape, each_size)
     eval_dataset = tf.data.Dataset.from_tensor_slices((x_test)).batch(batch_size)
     eval_input_fn = lambda: eval_dataset.make_one_shot_iterator().get_next()
-    # for glow
-    #return x_test
     return eval_input_fn
 
-def get_eval_dataset(dataset_name, batch_size):
+def get_eval_dataset(dataset_name, batch_size, each_size=1000):
     if dataset_name == 'mnist':
-        return build_eval_dataset(tf.keras.datasets.mnist, batch_size, expand_last_dim=True)
+        return build_eval_dataset(tf.keras.datasets.mnist, batch_size, expand_last_dim=True, each_size=each_size)
     elif dataset_name == 'fashion_mnist':
-        return build_eval_dataset(tf.keras.datasets.fashion_mnist, batch_size, expand_last_dim=True)
+        return build_eval_dataset(tf.keras.datasets.fashion_mnist, batch_size, expand_last_dim=True, each_size=each_size)
     elif dataset_name == 'notMNIST':
-        return build_eval_dataset('notMNIST', batch_size, expand_last_dim=True)
+        return build_eval_dataset('notMNIST', batch_size, expand_last_dim=True, each_size=each_size)
     elif dataset_name == 'cifar10':
-        return build_eval_dataset(tf.keras.datasets.cifar10, batch_size)
+        return build_eval_dataset(tf.keras.datasets.cifar10, batch_size, each_size=each_size)
     elif dataset_name == 'cifar100':
-        return build_eval_dataset(tf.keras.datasets.cifar100, batch_size)
+        return build_eval_dataset(tf.keras.datasets.cifar100, batch_size, each_size=each_size)
     elif dataset_name == 'SVHN':
-        return build_eval_dataset('SVHN', batch_size)
+        return build_eval_dataset('SVHN', batch_size, each_size=each_size)
     elif dataset_name == 'credit_card_normal':
         return build_eval_dataset('credit_card_normal', batch_size, feature_shape=(30,), each_size=492)
     elif dataset_name == 'credit_card_anomalies':

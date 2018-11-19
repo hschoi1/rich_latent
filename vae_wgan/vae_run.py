@@ -24,6 +24,8 @@ FLAGS = tf.flags.FLAGS
 
 flags.DEFINE_float(
     "learning_rate", default=0.001, help="Initial learning rate.")
+flags.DEFINE_float(
+    "beta", default=1.0, help="Beta in a Beta-VAE.")
 flags.DEFINE_integer(
     "max_steps", default=5001, help="Number of training steps to run.")
 flags.DEFINE_integer(
@@ -118,7 +120,8 @@ def main(argv):
             ),
         )
         if not FLAGS.skip_train:
-            estimator.train(train_input_fn, max_steps=FLAGS.max_steps)
+            for _ in range(FLAGS.max_steps // FLAGS.viz_steps):
+                estimator.train(train_input_fn, steps=FLAGS.viz_steps)
             # Evaluate once after training.
             eval_results = estimator.evaluate(eval_input_fn)
             print("Evaluation_results:\n\t%s\n" % eval_results)
@@ -135,8 +138,10 @@ def main(argv):
         compare_datasets = ['mnist', 'omniglot', 'notMNIST', 'fashion_mnist', 'mnist', 'mnist',
                             'uniform_noise', 'normal_noise']
     elif FLAGS.train_dataset == "fashion_mnist":
+        # TMP
         compare_datasets = ['fashion_mnist', 'omniglot', 'notMNIST', 'mnist', 'fashion_mnist', 'fashion_mnist', 'uniform_noise',
                             'normal_noise']
+        #compare_datasets = ['fashion_mnist', 'mnist']
 
     # whether to noise each dataset or not
     noised_list = [False, False, False, False, True, True, False, False]
@@ -163,7 +168,7 @@ def main(argv):
     adv_base = 0
 
     #for ensembles
-    ensemble_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size, model_fn, FLAGS.model_dir, show_adv_examples, adv_base)
+    ensemble_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size, model_fn, FLAGS.model_dir, show_adv_examples, adv_base, each_size=10000)
 
     # history analysis
     #history_compare_elbo(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size, model_fn, FLAGS.model_dir, show_adv_examples, adv_base)

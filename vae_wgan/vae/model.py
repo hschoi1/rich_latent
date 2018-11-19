@@ -239,8 +239,9 @@ def model_fn(features, labels, mode, params, config):
     elbo_local = -(rate + distortion)
 
     elbo = tf.reduce_mean(elbo_local)
-    loss = -elbo
     tf.summary.scalar("elbo", elbo)
+
+    loss = tf.reduce_mean(FLAGS.beta * rate + distortion)
 
     # negative log-likelihood of encoded inputs under likelihood model p(x|z)
     # lower is better

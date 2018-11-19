@@ -101,8 +101,8 @@ def adversarial_fetch(eval_input_fn, batch_size, model_fn, model_dir, keys, base
 
 # adversarially perturb a normal/uniform noise and get the adversarial example from base_model
 # and use that adversarial example to calculate the values of keys for all 5 models.
-def adversarial_ensemble_fetch(base, batch_size, model_fn, model_dir, keys, base_model):
-    eval_input_fn = get_eval_dataset(base, batch_size)
+def adversarial_ensemble_fetch(base, batch_size, model_fn, model_dir, keys, base_model, each_size=1000):
+    eval_input_fn = get_eval_dataset(base, batch_size, each_size=each_size)
 
     # collect ensemble elbo for adversarial noise input
     adversarial_normal_noise_ensemble = []
@@ -155,7 +155,7 @@ def ensemble_analysis(datasets, expand_last_dim,  noised_list, noise_type_list, 
 
     if show_adv is not None:
         adversarial_normal_noise_ensemble, adversarial_uniform_noise_ensemble = adversarial_ensemble_fetch(datasets[0],
-                                                                        batch_size, model_fn, model_dir, keys, adv_base)
+                                                                        batch_size, model_fn, model_dir, keys, adv_base, each_size=each_size)
         # get ensemble statistics on adversarial noise
         adversarial_normal_noise_ensemble = np.array(adversarial_normal_noise_ensemble)[:,0,:]
         adversarial_uniform_noise_ensemble = np.array(adversarial_uniform_noise_ensemble)[:,0,:]
