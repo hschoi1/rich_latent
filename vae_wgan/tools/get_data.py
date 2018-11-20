@@ -153,6 +153,7 @@ def build_eval_helper(dataset, expand_last_dim=False, noised=False, noise_type='
 
     #choice = np.random.choice(x_test.shape[0],each_size)
     #x_test = x_test[choice]
+    x_test = x_test[:each_size]
     x_test = x_test.astype(np.float32) / 255.
 
     if expand_last_dim:
