@@ -65,15 +65,13 @@ def print_stats(values, truth, thresholds, name):
         print(name, str(threshold), ":  TP:", str(stats[0]), " FP:", str(stats[1]), " TN:", str(stats[2]), " FN:",
               str(stats[3]))
 
-
-def analysis_helper(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples,
-                   model_fn,  model_dir, which_model, adv_apply, keys, feature_shape=(28,28), each_size=1000, checkpoint_step=None):
-
+def name_helper(compare_datasets, noised_list, noise_type_list):
     dataset_dic = {'mnist': tf.keras.datasets.mnist, 'fashion_mnist': tf.keras.datasets.fashion_mnist,
                    'cifar10': tf.keras.datasets.cifar10, 'cifar100': tf.keras.datasets.cifar100,
-                   'ImageNet':'ImageNet', 'SVHN':'SVHN','notMNIST':'notMNIST', 'celebA':'celebA', 'omniglot':'omniglot',
-                   'normal_noise': 'normal_noise','uniform_noise': 'uniform_noise',
-                   'credit_card_normal':'credit_card_normal','credit_card_anomalies':'credit_card_anomalies'}
+                   'ImageNet': 'ImageNet', 'SVHN': 'SVHN', 'notMNIST': 'notMNIST', 'celebA': 'celebA',
+                   'omniglot': 'omniglot',
+                   'normal_noise': 'normal_noise', 'uniform_noise': 'uniform_noise',
+                   'credit_card_normal': 'credit_card_normal', 'credit_card_anomalies': 'credit_card_anomalies'}
 
     converted_datasets = []
     datasets_names = []
@@ -81,24 +79,20 @@ def analysis_helper(compare_datasets, expand_last_dim, noised_list, noise_type_l
         converted_datasets.append(dataset_dic[dataset])
         dataset_name = dataset
         if noised_list[index]:
-            dataset_name = dataset_name + ' nsd by '+noise_type_list[index]
+            dataset_name = dataset_name + ' nsd by ' + noise_type_list[index]
         datasets_names.append(dataset_name)
+    return converted_datasets, datasets_names
 
-    input_fn = build_eval_multiple_datasets(converted_datasets, 100, expand_last_dim, noised_list,
-                                            noise_type_list, feature_shape, each_size)
+def analysis_helper(input_fn, compare_datasets, show_adv_examples, model_fn,  model_dir, which_model, adv_apply, keys, checkpoint_step=None):
 
     results = fetch(input_fn, model_fn, model_dir, keys, which_model, checkpoint_step)
 
     if show_adv_examples is not None:
         adv_normal, adv_uniform = adversarial_fetch(get_eval_dataset(compare_datasets[0], 100), 100, model_fn,
                                                     model_dir, keys, which_model, adv_apply)
-
-
-        datasets_names.append('adv normal noise')
-        datasets_names.append('adv uniform noise')
         results = np.concatenate([results, adv_normal, adv_uniform], axis=1)
 
-    return results, datasets_names
+    return results
 
 def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
     results = np.clip(results, -1e5, 1e5) # clip so that histograms work
@@ -127,6 +121,9 @@ def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
         this_axis.set_xlabel(keys[i] + " of " + datasets_names[0])
         auroc_scores_datasets = []
         for index in range(1, num_dataset):
+            if sum(np.isnan(value[each_size * index:each_size * (index + 1)])) > 0:  # if there is a nan value, skip the dataset
+                continue
+
             if len(keys) == 1:
                 this_axis = axes[index]
             else:
@@ -173,10 +170,17 @@ def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
 def single_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples, model_fn,  model_dir, which_model,
                                                          adv_apply, keys, bins=None, feature_shape=(28,28), each_size=1000):
 
+    converted_datasets, datasets_names = name_helper(compare_datasets, noised_list, noise_type_list)
+    input_fn = build_eval_multiple_datasets(converted_datasets, 100, expand_last_dim, noised_list, noise_type_list,
+                                            feature_shape, each_size)  # corrupted indistribution attached automatically
+    datasets_names += ['gaussian_noise', 'shot_noise', 'impulse_noise', 'defocus_blur',
+                       'glass_blur', 'motion_blur', 'zoom_blur', 'snow', 'frost', 'fog',
+                       'brightness', 'contrast', 'elastic_transform', 'pixelate', 'jpeg_compression',
+                       'speckle_noise', 'gaussian_blur', 'spatter', 'saturate']   # manually attach dataset names
 
-    results, datasets_names = analysis_helper(compare_datasets, expand_last_dim, noised_list, noise_type_list,
-                                     show_adv_examples, model_fn,  model_dir, which_model, adv_apply, keys, feature_shape, each_size)
-
+    results = analysis_helper(input_fn, converted_datasets, show_adv_examples, model_fn,  model_dir, which_model, adv_apply, keys)
+    if show_adv_examples is not None:
+        datasets_names += ['adv_normal_noise', 'adv_uniform_noise']
     # plot elbo/logit/logp(x) for each dataset
     # and calculate AUROC/AP scores for keys (threshold variables)
     plot_analysis(results, datasets_names, keys, bins, each_size)

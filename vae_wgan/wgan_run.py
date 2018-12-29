@@ -400,8 +400,11 @@ elif FLAGS.train_dataset == "cifar10":
                                           noise_type_list=noise_type_list, feature_shape=(32, 32, 3), each_size=1000)
 
 
-
-
+# add corrupted in-distribution samples for labels
+datasets_names += ['gaussian_noise', 'shot_noise', 'impulse_noise', 'defocus_blur',
+                    'glass_blur', 'motion_blur', 'zoom_blur', 'snow', 'frost', 'fog',
+                    'brightness', 'contrast', 'elastic_transform', 'pixelate', 'jpeg_compression',
+                    'speckle_noise', 'gaussian_blur', 'spatter', 'saturate']
 
 # for plotting labels
 keys = ['single_logits','logits_ens_mean','logits_ens_var', 'WAIC']

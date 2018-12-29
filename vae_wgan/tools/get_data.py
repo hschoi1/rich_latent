@@ -5,7 +5,7 @@ from scipy.io import loadmat
 from six.moves import urllib
 import numpy as np
 import pandas as pd
-
+from tools.corruptions import *
 
 # random noise from normal distribution
 def build_normal_noise_fns(batch_size, eval_repeat=1, image_shape=(28, 28, 1)):
@@ -91,6 +91,10 @@ def build_eval_multiple_datasets(dataset_list, batch_size, expand_last_dim=False
 
         x_test_list.append(x_test)
 
+    indistribution = x_test_list[0]
+    corrupted = corrupt(indistribution)  #list of corrupted in-distribution samples
+    x_test_list += corrupted
+
     eval_dataset = tf.data.Dataset.from_tensor_slices((np.concatenate(x_test_list, axis=0)))
     eval_dataset = eval_dataset.batch(batch_size)
 
@@ -110,6 +114,10 @@ def build_eval_multiple_datasets2(dataset_list, expand_last_dim=False, noised_li
             x_test = build_eval_helper(dataset, expand_last_dim, feature_shape=feature_shape, each_size=each_size)
 
         x_test_list.append(x_test)
+
+    indistribution = x_test_list[0]
+    corrupted = corrupt(indistribution)  # list of corrupted in-distribution samples
+    x_test_list += corrupted
 
     return np.concatenate(x_test_list, axis=0)
 

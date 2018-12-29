@@ -120,15 +120,23 @@ def adversarial_ensemble_fetch(base, batch_size, model_fn, model_dir, keys, base
 # plot elbo for each dataset and also plot single elbo vs. ensemble variance
 def ensemble_analysis(datasets, expand_last_dim,  noised_list, noise_type_list, batch_size,
                  model_fn, model_dir, show_adv, adv_base, feature_shape=(28,28), each_size=1000):
-    from tools.statistics import analysis_helper
+    from tools.statistics import analysis_helper, name_helper
     M = 5
     f, axes = plt.subplots(1, 2, figsize=(12, 5))
 
     keys = ['elbo']  # or rate
     ensemble_elbos = []
+
+    # construct input for all models
+    converted_datasets, datasets_names = name_helper(datasets, noised_list, noise_type_list)
+    input_fn = build_eval_multiple_datasets(converted_datasets, 100, expand_last_dim, noised_list,noise_type_list, feature_shape, each_size)  # corrupted indistribution attached automatically
+    datasets_names += ['gaussian_noise', 'shot_noise', 'impulse_noise', 'defocus_blur',
+                       'glass_blur', 'motion_blur', 'zoom_blur', 'snow', 'frost', 'fog',
+                       'brightness', 'contrast', 'elastic_transform', 'pixelate', 'jpeg_compression',
+                       'speckle_noise', 'gaussian_blur', 'spatter', 'saturate'] # manually attach dataset names
+
     for i in range(M):
-        single_results, datasets_names = analysis_helper(datasets, expand_last_dim,  noised_list, noise_type_list, None,
-                                                 model_fn,model_dir, i, i, keys, feature_shape, each_size)
+        single_results = analysis_helper(input_fn, converted_datasets, None, model_fn,model_dir, i, i, keys)
         single_elbo = single_results[0]
         ensemble_elbos.append(single_elbo)
 
