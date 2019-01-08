@@ -136,7 +136,7 @@ def main(argv):
 
     #which model to use to create adversarially perturbed noise for ensemble analysis
     adv_base = 0
-    ensemble_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size,
+    ensemble_OoD(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size,
                  anomaly_model_fn, FLAGS.model_dir, show_adv_examples, adv_base, feature_shape=(30,), each_size=492)
 
 if __name__ == "__main__":

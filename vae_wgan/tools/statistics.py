@@ -95,7 +95,7 @@ def analysis_helper(input_fn, compare_datasets, show_adv_examples, model_fn,  mo
     return results
 
 def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
-    results = np.clip(results, -1e5, 1e5) # clip so that histograms work
+    results = np.clip(results, -1e6, 1e6) # clip so that histograms work
     num_dataset = len(datasets_names)
     scores = []
     auroc_scores = []
@@ -172,11 +172,7 @@ def single_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_l
 
     converted_datasets, datasets_names = name_helper(compare_datasets, noised_list, noise_type_list)
     input_fn = build_eval_multiple_datasets(converted_datasets, 100, expand_last_dim, noised_list, noise_type_list,
-                                            feature_shape, each_size)  # corrupted indistribution attached automatically
-    datasets_names += ['gaussian_noise', 'shot_noise', 'impulse_noise', 'defocus_blur',
-                       'glass_blur', 'motion_blur', 'zoom_blur', 'snow', 'frost', 'fog',
-                       'brightness', 'contrast', 'elastic_transform', 'pixelate', 'jpeg_compression',
-                       'speckle_noise', 'gaussian_blur', 'spatter', 'saturate']   # manually attach dataset names
+                                            feature_shape, each_size)
 
     results = analysis_helper(input_fn, converted_datasets, show_adv_examples, model_fn,  model_dir, which_model, adv_apply, keys)
     if show_adv_examples is not None:

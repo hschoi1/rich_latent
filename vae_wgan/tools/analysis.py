@@ -118,9 +118,9 @@ def adversarial_ensemble_fetch(base, batch_size, model_fn, model_dir, keys, base
     return adversarial_normal_noise_ensemble, adversarial_uniform_noise_ensemble
 
 # plot elbo for each dataset and also plot single elbo vs. ensemble variance
-def ensemble_analysis(datasets, expand_last_dim,  noised_list, noise_type_list, batch_size,
+def ensemble_OoD(datasets, expand_last_dim,  noised_list, noise_type_list, batch_size,
                  model_fn, model_dir, show_adv, adv_base, feature_shape=(28,28), each_size=1000):
-    from tools.statistics import analysis_helper, name_helper
+    from tools.statistics import analysis_helper, name_helper, plot_analysis
     M = 5
     f, axes = plt.subplots(1, 2, figsize=(12, 5))
 
@@ -130,10 +130,12 @@ def ensemble_analysis(datasets, expand_last_dim,  noised_list, noise_type_list, 
     # construct input for all models
     converted_datasets, datasets_names = name_helper(datasets, noised_list, noise_type_list)
     input_fn = build_eval_multiple_datasets(converted_datasets, 100, expand_last_dim, noised_list,noise_type_list, feature_shape, each_size)  # corrupted indistribution attached automatically
-    datasets_names += ['gaussian_noise', 'shot_noise', 'impulse_noise', 'defocus_blur',
-                       'glass_blur', 'motion_blur', 'zoom_blur', 'snow', 'frost', 'fog',
-                       'brightness', 'contrast', 'elastic_transform', 'pixelate', 'jpeg_compression',
-                       'speckle_noise', 'gaussian_blur', 'spatter', 'saturate'] # manually attach dataset names
+    datasets_names += ['gaussian_noise_c', 'shot_noise_c', 'impulse_noise_c', 'defocus_blur_c',
+                       'glass_blur_c', 'motion_blur_c', 'zoom_blur_c', 'snow_c', 'frost_c', 'fog_c',
+                       'brightness_c', 'contrast_c', 'elastic_transform_c', 'pixelate_c', 'jpeg_compression_c',
+                       'speckle_noise_c', 'gaussian_blur_c', 'spatter_c', 'saturate_c', 'gaussian_noise_p', 'shot_noise_p',
+                       'motion_blur_p', 'zoom_blur_p', 'snow_p', 'brightness_p', 'translate_p', 'rotate_p', 'tilt_p',
+                       'scale_p', 'speckle_noise_p', 'gaussian_blur_p', 'spatter_p', 'shear_p'] # manually attach dataset names
 
     for i in range(M):
         single_results = analysis_helper(input_fn, converted_datasets, None, model_fn,model_dir, i, i, keys)
@@ -203,7 +205,6 @@ def ensemble_analysis(datasets, expand_last_dim,  noised_list, noise_type_list, 
         ensemble_results = [single_elbo]
 
 
-    from tools.statistics import plot_analysis
     plot_analysis(ensemble_results, datasets_names, ensemble_keys, bins=bin_dict, each_size=each_size)
 
     # adjust range
@@ -220,6 +221,71 @@ def ensemble_analysis(datasets, expand_last_dim,  noised_list, noise_type_list, 
     axes[1].legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.show()
     f.savefig(os.path.join(FLAGS.model_dir,"elbo.eps"), bbox_inches="tight", format='eps', dpi=1000)
+
+
+def ensemble_perturbations(base_dataset, expand_last_dim,  noised_list, noise_type_list,
+                 model_fn, model_dir, feature_shape=(28,28), each_size=1000):
+    from tools.statistics import analysis_helper, name_helper, plot_analysis
+
+    converted_datasets, datasets_names = name_helper([base_dataset], noised_list, noise_type_list)
+    input_fn = build_perturbation_datasets(converted_datasets[0], 100, expand_last_dim, feature_shape, each_size)
+    perturbation_names = ['gaussian_noise_p', 'shot_noise_p', 'motion_blur_p', 'zoom_blur_p', 'snow_p', 'brightness_p', 'translate_p',
+                       'rotate_p', 'tilt_p', 'scale_p', 'speckle_noise_p', 'gaussian_blur_p', 'spatter_p', 'shear_p']
+    for perturbation_name in perturbation_names:
+        for severity in range(30):
+            datasets_names.append(perturbation_name+str(severity)) # attach severity info
+
+    M = 5
+    keys = ['elbo']  # or rate
+    ensemble_elbos = []
+    for i in range(M):
+        single_results = analysis_helper(input_fn, converted_datasets, None, model_fn, model_dir, i, i, keys)
+        single_elbo = single_results[0]
+        ensemble_elbos.append(single_elbo)
+
+    ensemble_elbos = np.array(ensemble_elbos)
+    ensemble_mean = np.mean(ensemble_elbos, axis=0)
+    ensemble_var = np.var(ensemble_elbos, axis=0)
+    WAIC = ensemble_mean - ensemble_var
+    ensemble_keys = ['single_elbo', 'ensemble_elbo_mean', 'ensemble_elbo_var', 'WAIC']
+    ensemble_results = [single_elbo, ensemble_mean, ensemble_var, WAIC]
+    if keys[0] == 'rate':
+        ensemble_keys = ['single_rate']
+        ensemble_results = [single_elbo]
+
+    plot_analysis(ensemble_results, datasets_names, ensemble_keys, each_size=each_size)
+
+
+def ensemble_corruptions(base_dataset, expand_last_dim,  noised_list, noise_type_list,
+                 model_fn, model_dir, feature_shape=(28,28), each_size=1000):
+    from tools.statistics import analysis_helper, name_helper, plot_analysis
+
+    converted_datasets, datasets_names = name_helper([base_dataset], noised_list, noise_type_list)
+    input_fn = build_corruption_datasets(converted_datasets[0], 100, expand_last_dim, feature_shape, each_size, severity=1)
+    datasets_names += ['gaussian_noise_c', 'shot_noise_c', 'impulse_noise_c', 'defocus_blur_c',
+                       'glass_blur_c', 'motion_blur_c', 'zoom_blur_c', 'snow_c', 'frost_c', 'fog_c',
+                       'brightness_c', 'contrast_c', 'elastic_transform_c', 'pixelate_c', 'jpeg_compression_c',
+                       'speckle_noise_c', 'gaussian_blur_c', 'spatter_c', 'saturate_c']
+    M = 5
+    keys = ['elbo']  # or rate
+    ensemble_elbos = []
+    for i in range(M):
+        single_results = analysis_helper(input_fn, converted_datasets, None, model_fn, model_dir, i, i, keys)
+        single_elbo = single_results[0]
+        ensemble_elbos.append(single_elbo)
+
+    ensemble_elbos = np.array(ensemble_elbos)
+    ensemble_mean = np.mean(ensemble_elbos, axis=0)
+    ensemble_var = np.var(ensemble_elbos, axis=0)
+    WAIC = ensemble_mean - ensemble_var
+    ensemble_keys = ['single_elbo', 'ensemble_elbo_mean', 'ensemble_elbo_var', 'WAIC']
+    ensemble_results = [single_elbo, ensemble_mean, ensemble_var, WAIC]
+    if keys[0] == 'rate':
+        ensemble_keys = ['single_rate']
+        ensemble_results = [single_elbo]
+
+    plot_analysis(ensemble_results, datasets_names, ensemble_keys,  each_size=each_size)
+
 
 def history_compare_elbo(datasets, expand_last_dim,  noised_list, noise_type_list, batch_size,
                  model_fn, model_dir, show_adv, adv_base, feature_shape=(28,28), each_size=1000):
@@ -250,8 +316,7 @@ def history_compare_elbo(datasets, expand_last_dim,  noised_list, noise_type_lis
             ensemble_posterior_means.append(single_posterior_mean)
             ensemble_posterior_vars.append(single_posterior_var)
         ensemble_elbos = np.array(ensemble_elbos)
-        #ensemble_posterior_means = np.array(ensemble_posterior_means)
-        #ensemble_posterior_vars = np.array(ensemble_posterior_vars)
+
         # analyze statistics
         ensemble_var = np.var(ensemble_elbos, axis=0)
         ensemble_mean = np.mean(ensemble_elbos, axis=0)

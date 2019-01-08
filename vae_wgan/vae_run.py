@@ -167,8 +167,12 @@ def main(argv):
     #which model to use to create adversarially perturbed noise for ensemble analysis
     adv_base = 0
 
-    #for ensembles
-    ensemble_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size, model_fn, FLAGS.model_dir, show_adv_examples, adv_base, each_size=10000)
+    # ensembles on OoD datasets
+    ensemble_OoD(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size, model_fn, FLAGS.model_dir, show_adv_examples, adv_base, each_size=10000)
+    # ensembles on corrupted indistribution
+    ensemble_corruptions(compare_datasets[0], expand_last_dim, noised_list, noise_type_list, model_fn, FLAGS.model_dir, each_size=1000)
+    # ensembles on perturbed indistribution
+    ensemble_perturbations(compare_datasets[0], expand_last_dim, noised_list, noise_type_list, model_fn, FLAGS.model_dir, each_size=1000)
 
     # history analysis
     #history_compare_elbo(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size, model_fn, FLAGS.model_dir, show_adv_examples, adv_base)

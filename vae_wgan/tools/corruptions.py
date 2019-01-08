@@ -35,25 +35,29 @@ def corrupt(x, severity=1):
             x_corrupted.append(img_corrupted.astype(np.float32))
         x_corrupted = np.array(x_corrupted)
         corrupted_list.append(x_corrupted)
-    #pdb.set_trace()
+    plot_corrupt_types(gray, x[0], corrupt_nums, corrupted_list, corruption_tuple)
+    return corrupted_list
+
+def plot_corrupt_types(gray, original, corrupt_nums, corrupt_types, corrupt_names):
     f, axes = plt.subplots(5, 4)   # show original and corrupted images
     if gray:
-        axes[0,0].imshow(x[0][:,:,0]) # grey scale: (imgsize,imgsize,1)
+        axes[0,0].imshow(original[:,:,0]) # grey scale: (imgsize,imgsize,1)
     else:
-        axes[0, 0].imshow(x[0])  #  rgb scale: (imgsize,imgsize,3)
+        axes[0, 0].imshow(original[0])  #  rgb scale: (imgsize,imgsize,3)
     axes[0,0].set_title("original")
 
-    for index, corrupt_type in zip(corrupt_nums, corrupted_list):
+    for index, corrupt_type in zip(corrupt_nums, corrupt_types):
         if gray:
             axes[(index+1)%5, (index+1)//5].imshow(corrupt_type[0][:,:,0]) # grey scale: (imgsize,imgsize,1)
         else:
             axes[(index+1)%5, (index+1)//5].imshow(corrupt_type[0])  #  rgb scale: (imgsize,imgsize,3)
-        axes[(index + 1) % 5, (index + 1) // 5].set_title(corruption_tuple[index].__name__)
+        axes[(index + 1) % 5, (index + 1) // 5].set_title(corrupt_names[index].__name__)
     plt.tight_layout()
-    plt.show()
     plt.savefig("img_corruptions.png")
+    plt.show()
 
-    return corrupted_list
+
+
 
 # /////////////// Corruption Helpers ///////////////
 

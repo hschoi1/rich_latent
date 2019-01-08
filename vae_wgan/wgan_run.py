@@ -359,7 +359,7 @@ if not FLAGS.skip_train:
 
 ### ANALYSIS
 
-from tools.get_data import build_eval_multiple_datasets2
+from tools.get_data import build_eval_multiple_datasets2, build_corruption_datasets_, build_perturbation_datasets_
 from tools.statistics import plot_analysis
 
 # the first dataset in dataset_list is the base distribution we use
@@ -399,12 +399,6 @@ elif FLAGS.train_dataset == "cifar10":
     eval_data = build_eval_multiple_datasets2(dataset_list, expand_last_dim=False, noised_list=noised_list,
                                           noise_type_list=noise_type_list, feature_shape=(32, 32, 3), each_size=1000)
 
-
-# add corrupted in-distribution samples for labels
-datasets_names += ['gaussian_noise', 'shot_noise', 'impulse_noise', 'defocus_blur',
-                    'glass_blur', 'motion_blur', 'zoom_blur', 'snow', 'frost', 'fog',
-                    'brightness', 'contrast', 'elastic_transform', 'pixelate', 'jpeg_compression',
-                    'speckle_noise', 'gaussian_blur', 'spatter', 'saturate']
 
 # for plotting labels
 keys = ['single_logits','logits_ens_mean','logits_ens_var', 'WAIC']
@@ -461,69 +455,63 @@ extra_trained = plot_analysis(results, datasets_names, keys, bins=None, each_siz
 # [2] is for the ensemble variance of the logits
 
 
-### Iterate through all the not extra trained models and collect logits
-'''
-not_extra_trained_logits_list = []
+
+# corrupt
+
+if (FLAGS.train_dataset == "mnist") or (FLAGS.train_dataset == "fashion_mnist"):
+    corrupt_data = build_corruption_datasets_(dataset_list[0], severity=1, expand_last_dim=True, feature_shape=(28,28), each_size=1000)
+elif FLAGS.train_dataset == "cifar10":
+    corrupt_data = build_corruption_datasets_(dataset_list[0], severity=1, expand_last_dim=False,  feature_shape=(32, 32, 3), each_size=1000)
+datasets_names = ['gaussian_noise_c', 'shot_noise_c', 'impulse_noise_c', 'defocus_blur_c',
+                       'glass_blur_c', 'motion_blur_c', 'zoom_blur_c', 'snow_c', 'frost_c', 'fog_c',
+                       'brightness_c', 'contrast_c', 'elastic_transform_c', 'pixelate_c', 'jpeg_compression_c',
+                       'speckle_noise_c', 'gaussian_blur_c', 'spatter_c', 'saturate_c']
+logits_list = []
 
 for model_num in range(5):
     with tf.Session() as sess:
         saver = tf.train.Saver()
-        saver.restore(sess, FLAGS.model_dir + str(model_num) + '/extra/model.ckpt-0')
-        feed_dict = {features: eval_data}
+        saver.restore(sess, tf.train.latest_checkpoint(FLAGS.model_dir+str(model_num)+'/extra/'))
+        feed_dict = {features: corrupt_data}
         fetch_dict = {'true_logit': true_logit}
         fetched_results = sess.run(fetch_dict, feed_dict)
         logits = fetched_results['true_logit']
-    not_extra_trained_logits_list.append(logits)
+    logits_list.append(logits)
 
-not_extra_trained_logits_mean = np.mean(not_extra_trained_logits_list, axis=0)
-not_extra_trained_logits_var = np.var(not_extra_trained_logits_list, axis=0)
-not_extra_trained_results = [not_extra_trained_logits_list[0], not_extra_trained_logits_mean, not_extra_trained_logits_var]
-not_extra_trained = plot_analysis(not_extra_trained_results, datasets_names, keys, bins=None, each_size=1000)
-# not_extra_trained is an array of AUROC of size (3, num of OOD datasets (maybe including adversarial examples))
-# not_extra_trained[0] is the scores of datasets for single critic logit, [1] for ensmeble mean of the logits
-# [2] is for the ensemble variance of the logits
-
-ind = np.arange(len(not_extra_trained[0]))
-fig, ax = plt.subplots(1,3,figsize=(15,5))
-rects1 = ax[0].bar(ind, extra_trained[0], width=0.3) # auroc of single logits
-rects2 = ax[0].bar(ind+0.3, not_extra_trained[0], width=0.3)
-ax[0].set_ylabel('AUROC')
-ax[0].set_xlabel('single_logit')
-#ax[0].set_xticks(ind + 0.3 / 2)
-#ax[0].set_xticklabels(datasets_names)
-ax[0].legend((rects1[0], rects2[0]), ['extra_trained', 'not_extra_trained'])
-rects1 = ax[1].bar(ind, extra_trained[1], width=0.3)  # auroc of ensemble mean
-rects2 = ax[1].bar(ind+0.3, not_extra_trained[1], width=0.3)
-ax[1].set_ylabel('AUROC')
-ax[1].set_xlabel('ensemble_logit_mean')
-#ax[1].set_xticks(ind + 0.3 / 2)
-#ax[1].set_xticklabels(datasets_names)
-ax[1].legend((rects1[0], rects2[0]), ['extra_trained', 'not_extra_trained'])
-rects1 = ax[2].bar(ind, extra_trained[2], width=0.3)  # auroc of ensemble var
-rects2 = ax[2].bar(ind+0.3, not_extra_trained[2], width=0.3)
-ax[2].set_ylabel('AUROC')
-ax[2].set_xlabel('ensemble_logit_var')
-#ax[2].set_xticks(ind + 0.3 / 2)
-#ax[2].set_xticklabels(datasets_names)
-ax[2].legend((rects1[0], rects2[0]), ['extra_trained', 'not_extra_trained'])
-
-fig.savefig(os.path.join(FLAGS.model_dir, "auroc_wgans.eps"), format='eps', dpi=1000)
+logits_mean = np.mean(logits_list, axis=0)
+logits_var = np.var(logits_list, axis=0)
+waic = logits_mean - logits_var
+results = [logits_list[0], logits_mean, logits_var, waic]
+extra_trained = plot_analysis(results, datasets_names, keys, bins=None, each_size=1000)
 
 
-#if want a different version of the same plot where each subplot represents each dataset
 
-ind = np.arange(2)
-fig, ax = plt.subplots(1,len(not_extra_trained[0]),figsize=(5*len(not_extra_trained[0]),5))
-for i in range(len(not_extra_trained[0])):
-    rects1 = ax[i].bar(ind[0], extra_trained[1][i], width=0.3, color='b')  # auroc of ensemble mean
-    rects2 = ax[i].bar(ind[0] + 0.3, not_extra_trained[1][i], width=0.3, color='y')
-    rects1 = ax[i].bar(ind[1], extra_trained[2][i], width=0.3, color='b')  # auroc of ensemble var
-    rects2 = ax[i].bar(ind[1] + 0.3, not_extra_trained[2][i], width=0.3, color='y')
-    ax[i].set_ylabel('AUROC')
-    ax[i].set_xticks(ind+0.5)
-    ax[i].set_xticklabels(['ensemble_logit_mean     ensmeble_logit_var'])
-    ax[i].legend((rects1[0], rects2[0]), ['extra_trained', 'not_extra_trained'])
-    ax[i].set_title(datasets_names[i+1])  # exclude the base distribuiton (just plain mnist)
+# perturb
 
-fig.savefig(os.path.join(FLAGS.model_dir, "auroc_wgans_version2.eps"), format='eps', dpi=1000)
-'''
+if (FLAGS.train_dataset == "mnist") or (FLAGS.train_dataset == "fashion_mnist"):
+    perturb_data = build_perturbation_datasets_(dataset_list[0], expand_last_dim=True, feature_shape=(28,28), each_size=1000)
+elif FLAGS.train_dataset == "cifar10":
+    perturb_data = build_perturbation_datasets_(dataset_list[0], expand_last_dim=False,  feature_shape=(32, 32, 3), each_size=1000)
+pertubation_names = ['gaussian_noise_p', 'shot_noise_p', 'motion_blur_p', 'zoom_blur_p', 'snow_p', 'brightness_p', 'translate_p',
+                       'rotate_p', 'tilt_p', 'scale_p', 'speckle_noise_p', 'gaussian_blur_p', 'spatter_p', 'shear_p']
+datasets_names = []
+for perturbation_name in pertubation_names:
+    for severity in range(31):
+        datasets_names.append(perturbation_name+str(severity))  # attach severity info
+
+logits_list = []
+for model_num in range(5):
+    with tf.Session() as sess:
+        saver = tf.train.Saver()
+        saver.restore(sess, tf.train.latest_checkpoint(FLAGS.model_dir+str(model_num)+'/extra/'))
+        feed_dict = {features: perturb_data}
+        fetch_dict = {'true_logit': true_logit}
+        fetched_results = sess.run(fetch_dict, feed_dict)
+        logits = fetched_results['true_logit']
+    logits_list.append(logits)
+
+logits_mean = np.mean(logits_list, axis=0)
+logits_var = np.var(logits_list, axis=0)
+waic = logits_mean - logits_var
+results = [logits_list[0], logits_mean, logits_var, waic]
+extra_trained = plot_analysis(results, datasets_names, keys, bins=None, each_size=1000)

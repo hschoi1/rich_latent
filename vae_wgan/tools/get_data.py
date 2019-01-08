@@ -5,7 +5,8 @@ from scipy.io import loadmat
 from six.moves import urllib
 import numpy as np
 import pandas as pd
-from tools.corruptions import *
+from tools.corruptions import corrupt
+from tools.perturbations import perturb
 
 # random noise from normal distribution
 def build_normal_noise_fns(batch_size, eval_repeat=1, image_shape=(28, 28, 1)):
@@ -91,16 +92,54 @@ def build_eval_multiple_datasets(dataset_list, batch_size, expand_last_dim=False
 
         x_test_list.append(x_test)
 
-    indistribution = x_test_list[0]
-    corrupted = corrupt(indistribution)  #list of corrupted in-distribution samples
-    x_test_list += corrupted
-
     eval_dataset = tf.data.Dataset.from_tensor_slices((np.concatenate(x_test_list, axis=0)))
     eval_dataset = eval_dataset.batch(batch_size)
 
     eval_input_fn = lambda: eval_dataset.make_one_shot_iterator().get_next()
 
     return eval_input_fn
+
+
+def build_corruption_datasets(base_dataset, batch_size, expand_last_dim=False, feature_shape=(28, 28),  each_size=1000,  severity=1):
+    corrupted_data = build_corruption_datasets_(base_dataset, severity, expand_last_dim, feature_shape, each_size)
+    eval_dataset = tf.data.Dataset.from_tensor_slices(corrupted_data)
+    eval_dataset = eval_dataset.batch(batch_size)
+    eval_input_fn = lambda: eval_dataset.make_one_shot_iterator().get_next()
+
+    return eval_input_fn
+
+# for wgan
+def build_corruption_datasets_(base_dataset, severity=1, expand_last_dim=False,  feature_shape=(28,28), each_size=1000):
+    x_test_list = []
+
+    x_test = build_eval_helper(base_dataset, expand_last_dim,  feature_shape, each_size)
+    x_test_list.append(x_test)
+
+    corrupted = corrupt(x_test, severity)  # list of corrupted in-distribution samples
+    x_test_list += corrupted
+
+    return np.concatenate(x_test_list, axis=0)
+
+
+def build_perturbation_datasets(base_dataset, batch_size, expand_last_dim=False, feature_shape=(28, 28), each_size=1000):
+
+    perturbed_data = build_perturbation_datasets_(base_dataset, expand_last_dim, feature_shape, each_size)
+    eval_dataset = tf.data.Dataset.from_tensor_slices(perturbed_data)
+    eval_dataset = eval_dataset.batch(batch_size)
+    eval_input_fn = lambda: eval_dataset.make_one_shot_iterator().get_next()
+
+    return eval_input_fn
+
+# for wgan
+def build_perturbation_datasets_(base_dataset, expand_last_dim=False, feature_shape=(28, 28), each_size=1000):
+    x_test_list = []
+
+    x_test = build_eval_helper(base_dataset, expand_last_dim, feature_shape, each_size)
+    x_test_list.append(x_test)
+
+    perturbed = perturb(x_test)  # list of perturbed in-distribution samples
+    x_test_list += perturbed
+    return np.concatenate(x_test_list, axis=0)
 
 # for wgan
 def build_eval_multiple_datasets2(dataset_list, expand_last_dim=False, noised_list=None,
@@ -114,10 +153,6 @@ def build_eval_multiple_datasets2(dataset_list, expand_last_dim=False, noised_li
             x_test = build_eval_helper(dataset, expand_last_dim, feature_shape=feature_shape, each_size=each_size)
 
         x_test_list.append(x_test)
-
-    indistribution = x_test_list[0]
-    corrupted = corrupt(indistribution)  # list of corrupted in-distribution samples
-    x_test_list += corrupted
 
     return np.concatenate(x_test_list, axis=0)
 
