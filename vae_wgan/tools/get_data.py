@@ -8,25 +8,7 @@ import pandas as pd
 from tools.corruptions import corrupt
 from tools.perturbations import perturb
 
-# random noise from normal distribution
-def build_normal_noise_fns(batch_size, eval_repeat=1, image_shape=(28, 28, 1)):
-    """Build fake MNIST-style data for unit testing."""
-    dataset = tf.data.Dataset.from_tensor_slices(
-        np.random.normal(0,1,size=(1000, *image_shape)).astype("float32")).map(
-        lambda row: (row, 0)).batch(batch_size)
 
-    eval_input_fn = lambda: dataset.repeat(eval_repeat).make_one_shot_iterator().get_next()
-    return eval_input_fn
-
-# random noise from uniform distribution
-def build_uniform_noise_fns(batch_size, eval_repeat=1, image_shape=(28, 28, 1)):
-    """Build fake MNIST-style data for unit testing."""
-    dataset = tf.data.Dataset.from_tensor_slices(
-        np.random.uniform(low=0., high=1., size=(1000, *image_shape)).astype("float32")).map(
-        lambda row: (row, 0)).batch(batch_size)
-
-    eval_input_fn = lambda: dataset.repeat(eval_repeat).make_one_shot_iterator().get_next()
-    return eval_input_fn
 
 def credit_dataset_helper():
     df = pd.read_csv('data/creditcard.csv.zip', header=0, sep=',', quotechar='"')

@@ -462,7 +462,7 @@ if (FLAGS.train_dataset == "mnist") or (FLAGS.train_dataset == "fashion_mnist"):
     corrupt_data = build_corruption_datasets_(dataset_list[0], severity=1, expand_last_dim=True, feature_shape=(28,28), each_size=1000)
 elif FLAGS.train_dataset == "cifar10":
     corrupt_data = build_corruption_datasets_(dataset_list[0], severity=1, expand_last_dim=False,  feature_shape=(32, 32, 3), each_size=1000)
-datasets_names = ['gaussian_noise_c', 'shot_noise_c', 'impulse_noise_c', 'defocus_blur_c',
+datasets_names = ['base_dataset', 'gaussian_noise_c', 'shot_noise_c', 'impulse_noise_c', 'defocus_blur_c',
                        'glass_blur_c', 'motion_blur_c', 'zoom_blur_c', 'snow_c', 'frost_c', 'fog_c',
                        'brightness_c', 'contrast_c', 'elastic_transform_c', 'pixelate_c', 'jpeg_compression_c',
                        'speckle_noise_c', 'gaussian_blur_c', 'spatter_c', 'saturate_c']
@@ -494,9 +494,9 @@ elif FLAGS.train_dataset == "cifar10":
     perturb_data = build_perturbation_datasets_(dataset_list[0], expand_last_dim=False,  feature_shape=(32, 32, 3), each_size=1000)
 pertubation_names = ['gaussian_noise_p', 'shot_noise_p', 'motion_blur_p', 'zoom_blur_p', 'snow_p', 'brightness_p', 'translate_p',
                        'rotate_p', 'tilt_p', 'scale_p', 'speckle_noise_p', 'gaussian_blur_p', 'spatter_p', 'shear_p']
-datasets_names = []
+datasets_names = ['base_dataset']
 for perturbation_name in pertubation_names:
-    for severity in range(31):
+    for severity in range(30):
         datasets_names.append(perturbation_name+str(severity))  # attach severity info
 
 logits_list = []

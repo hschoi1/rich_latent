@@ -95,53 +95,21 @@ def analysis_helper(input_fn, compare_datasets, show_adv_examples, model_fn,  mo
     return results
 
 def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
-    results = np.clip(results, -1e6, 1e6) # clip so that histograms work
+    results = np.clip(results, -1e10, 1e10)
     num_dataset = len(datasets_names)
     scores = []
     auroc_scores = []
-    f, axes = plt.subplots(len(results), num_dataset + 1, figsize=(8 * (num_dataset + 1), 5 * len(results)),
-                           sharex='row', sharey='row')
+
     for i, value in enumerate(results):  # iterate over values of each key
-        if len(keys) == 1:
-            this_axis = axes[0]
-            last_axis = axes[num_dataset]
-        else:
-            this_axis = axes[i, 0]
-            last_axis = axes[i, num_dataset]
 
-        if (bins is not None) and (keys[i] in bins.keys()):
-            bin = bins[keys[i]]
-            bin = np.linspace(*bin)
-            this_axis.hist(value[:each_size], bins=bin, alpha=0.5, label=datasets_names[0])
-            last_axis.hist(value[:each_size], bins=bin, alpha=0.3, label=datasets_names[0])
-        else:
-            this_axis.hist(value[:each_size], alpha=0.5, label=datasets_names[0])
-            last_axis.hist(value[:each_size], alpha=0.3, label=datasets_names[0])
-
-        this_axis.set_xlabel(keys[i] + " of " + datasets_names[0])
         auroc_scores_datasets = []
         for index in range(1, num_dataset):
             if sum(np.isnan(value[each_size * index:each_size * (index + 1)])) > 0:  # if there is a nan value, skip the dataset
                 continue
 
-            if len(keys) == 1:
-                this_axis = axes[index]
-            else:
-                this_axis = axes[i, index]
-            if (bins is not None) and (keys[i] in bins.keys()):
-                this_axis.hist(value[each_size * index:each_size * (index + 1)], bins=bin, alpha=0.5, label=datasets_names[index])
-                last_axis.hist(value[each_size * index:each_size * (index + 1)], bins=bin, alpha=0.3, label=datasets_names[index])
-            else:
-                this_axis.hist(value[each_size * index:each_size * (index + 1)], alpha=0.5, label=datasets_names[index])
-                last_axis.hist(value[each_size * index:each_size * (index + 1)], alpha=0.3, label=datasets_names[index])
-
-            this_axis.set_xlabel(keys[i] + " of " + datasets_names[index])
-
             if ('var' in keys[i]) or ('rate' in keys[i]):
-                is_mean = False  # points above threshold are anomalous
                 truth = np.concatenate([np.zeros(each_size), np.ones(each_size)])
             else:
-                is_mean = True  # points below threshold are anomalous
                 truth = np.concatenate([np.ones(each_size), np.zeros(each_size)])
 
             predictions = np.concatenate([value[:each_size], value[each_size * index:each_size * (index + 1)]])
@@ -156,14 +124,12 @@ def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
             simple_dict = {"dataset": datasets_names[index], "threshold_var": keys[i], "values": value[each_size * index:each_size * (index + 1)],
                            "AUROC": auroc_score, "AP": ap_score, "FPR@95%TPR": fpr_at_95tpr}
             scores.append(simple_dict)
-        last_axis.set_xlabel(keys[i])
-        last_axis.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+
         auroc_scores.append(auroc_scores_datasets)
 
     with open(os.path.join(FLAGS.model_dir, 'scores.pkl'), 'wb') as file:
         pickle.dump(scores, file) # scores of different threshold varaibles
 
-    f.savefig(os.path.join(FLAGS.model_dir,"stats.eps"), format='eps', dpi=1000)
     return auroc_scores
 
 # for single model

@@ -122,20 +122,17 @@ def ensemble_OoD(datasets, expand_last_dim,  noised_list, noise_type_list, batch
                  model_fn, model_dir, show_adv, adv_base, feature_shape=(28,28), each_size=1000):
     from tools.statistics import analysis_helper, name_helper, plot_analysis
     M = 5
-    f, axes = plt.subplots(1, 2, figsize=(12, 5))
 
     keys = ['elbo']  # or rate
     ensemble_elbos = []
 
     # construct input for all models
     converted_datasets, datasets_names = name_helper(datasets, noised_list, noise_type_list)
-    input_fn = build_eval_multiple_datasets(converted_datasets, 100, expand_last_dim, noised_list,noise_type_list, feature_shape, each_size)  # corrupted indistribution attached automatically
-    datasets_names += ['gaussian_noise_c', 'shot_noise_c', 'impulse_noise_c', 'defocus_blur_c',
-                       'glass_blur_c', 'motion_blur_c', 'zoom_blur_c', 'snow_c', 'frost_c', 'fog_c',
-                       'brightness_c', 'contrast_c', 'elastic_transform_c', 'pixelate_c', 'jpeg_compression_c',
-                       'speckle_noise_c', 'gaussian_blur_c', 'spatter_c', 'saturate_c', 'gaussian_noise_p', 'shot_noise_p',
-                       'motion_blur_p', 'zoom_blur_p', 'snow_p', 'brightness_p', 'translate_p', 'rotate_p', 'tilt_p',
-                       'scale_p', 'speckle_noise_p', 'gaussian_blur_p', 'spatter_p', 'shear_p'] # manually attach dataset names
+    #input_fn = build_eval_multiple_datasets(converted_datasets, 100, expand_last_dim, noised_list,noise_type_list, feature_shape, each_size)
+    eval_dataset = build_eval_multiple_datasets2(converted_datasets,  expand_last_dim, noised_list, noise_type_list, feature_shape, each_size)
+    eval_iterator = tf.data.Dataset.from_tensor_slices(eval_dataset)
+    eval_iterator = eval_iterator.batch(100)
+    input_fn = lambda: eval_iterator.make_one_shot_iterator().get_next()
 
     for i in range(M):
         single_results = analysis_helper(input_fn, converted_datasets, None, model_fn,model_dir, i, i, keys)
@@ -143,25 +140,6 @@ def ensemble_OoD(datasets, expand_last_dim,  noised_list, noise_type_list, batch
         ensemble_elbos.append(single_elbo)
 
     ensemble_elbos = np.array(ensemble_elbos)
-    ensemble_var = np.var(ensemble_elbos, axis=0)
-
-    # histogram of elbo of the last model on different datasets
-    if each_size==1000:
-        bin_range = (-2000, 1000)
-        bin_dict = {'single_elbo':(-2000, 1000,300), 'ensemble_elbo_mean':(-2000, 1000,300)}
-    else:
-        bin_range = (-100, 0)
-        bin_dict = {'single_elbo': (-100, 0, 300), 'ensemble_elbo_mean': (-100, 0, 300)}
-    bins = 300
-    for i in range(len(datasets)):
-        label = datasets_names[i]
-        axes[0].hist(single_elbo[each_size*i:each_size*(i+1)], label=label, alpha=0.5, bins=bins, range=bin_range)
-
-
-    # scatter plot of single elbo vs enesmble variance on each dataset
-    for i in range(len(datasets)):
-        label = datasets_names[i]
-        axes[1].scatter(single_elbo[each_size*i:each_size*(i+1)], ensemble_var[each_size*i:each_size*(i+1)], label=label, alpha=0.3)
 
     if show_adv is not None:
         adversarial_normal_noise_ensemble, adversarial_uniform_noise_ensemble = adversarial_ensemble_fetch(datasets[0],
@@ -173,20 +151,6 @@ def ensemble_OoD(datasets, expand_last_dim,  noised_list, noise_type_list, batch
         # elbo of the last model
         single_adv_normal_elbo = adversarial_normal_noise_ensemble[-1]
         single_adv_uniform_elbo = adversarial_uniform_noise_ensemble[-1]
-
-        # histogram of elbo of the last model on adversarial noise
-        axes[0].hist(single_adv_normal_elbo, label='adversarial normal noise', alpha=0.5, bins=100,
-                     range=bin_range)
-        axes[0].hist(single_adv_uniform_elbo, label='adversarial uniform noise', alpha=0.5, bins=100,
-                     range=bin_range)
-
-        # get ensemble var of elbos for adversarial examples
-        adv_normal_ensemble_var = np.var(adversarial_normal_noise_ensemble, axis=0)
-        adv_uniform_ensemble_var = np.var(adversarial_uniform_noise_ensemble, axis=0)
-
-        # scatter plot of single elbo vs enesmble variance on adversarial noise
-        axes[1].scatter(single_adv_normal_elbo, adv_normal_ensemble_var, label='adversarial normal noise', alpha=0.1)
-        axes[1].scatter(single_adv_uniform_elbo, adv_uniform_ensemble_var, label='adversarial uniform noise', alpha=0.1)
 
         # add single elbo/ensemble statistics of adversarial examples for score analysis
         single_elbo = np.concatenate([single_elbo, single_adv_normal_elbo, single_adv_uniform_elbo], axis=0)
@@ -205,22 +169,49 @@ def ensemble_OoD(datasets, expand_last_dim,  noised_list, noise_type_list, batch
         ensemble_results = [single_elbo]
 
 
-    plot_analysis(ensemble_results, datasets_names, ensemble_keys, bins=bin_dict, each_size=each_size)
+    plot_analysis(ensemble_results, datasets_names, ensemble_keys,  each_size=each_size)
 
-    # adjust range
-    axes[0].set_xlabel('single ELBO of each dataset')
-    axes[0].set_ylabel('frequency')
-    axes[1].set_xlabel('ELBO of single model')
-    axes[1].set_ylabel('ensemble variance')
-    if each_size==1000:
-        top = 40000
+    # sort imgs by WAIC values and show imgs of lowest/largest WAIC values across OoD datasets
+    imgsort_by_values(eval_dataset[each_size:], WAIC[each_size:-2*each_size], 'overall_OoD')
+
+    # sort imgs by WAIC values and show imgs of lowest/largest WAIC values of indistribution
+    imgsort_by_values(eval_dataset[:each_size], WAIC[:each_size], 'indistribution')
+
+    # sort WAIC values and show imgs of lowest/largest values per OoD dataset
+    WAIC_ = np.reshape(WAIC, (len(datasets_names), each_size))
+    for index in range(1, len(WAIC_)-2):
+        each_OoD = eval_dataset[each_size * index:each_size * (index + 1)]
+        each_WAIC = np.array(WAIC_[index])
+        imgsort_by_values(each_OoD, each_WAIC, datasets_names[index])
+
+
+def pack_images(images, img_shape):
+    width = img_shape[0]
+    height = img_shape[1]
+    depth = img_shape[2]
+    images = np.reshape(images, (-1, width, height, depth))
+    images = images[:8 * 8]
+    images = np.reshape(images, (8, 8, width, height, depth))
+    images = np.transpose(images, [0, 2, 1, 3, 4])
+    images = np.reshape(images, [1, 8 * width, 8 * height, depth])
+    return images
+
+def imgsort_by_values(images, values, OoDname): # sort imgs by score and show imgs of lowest/largest scores
+    order = np.argsort(values)
+    lowest_images = images[order][:100]
+    highest_images = images[order][-100:]
+    img_shape = images[0].shape
+    lowest_images = pack_images(lowest_images, img_shape)
+    highest_images = pack_images(highest_images, img_shape)
+    f, axes = plt.subplots(1, 2)
+    if img_shape[-1] == 1:
+        axes[0].imshow(lowest_images[0, :, :, 0])
+        axes[1].imshow(highest_images[0, :, :, 0])
     else:
-        top = 500
-    axes[1].set_xlim(bin_range)
-    axes[1].set_ylim(bottom=0, top=top)
-    axes[1].legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    plt.show()
-    f.savefig(os.path.join(FLAGS.model_dir,"elbo.eps"), bbox_inches="tight", format='eps', dpi=1000)
+        axes[0].imshow(lowest_images[0])
+        axes[1].imshow(highest_images[0])
+
+    f.savefig(os.path.join(FLAGS.model_dir, OoDname + "_images.eps"), bbox_inches="tight", format='eps', dpi=1000)
 
 
 def ensemble_perturbations(base_dataset, expand_last_dim,  noised_list, noise_type_list,

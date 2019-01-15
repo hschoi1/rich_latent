@@ -217,12 +217,12 @@ def zoom_blur(img):
     img_shape = img.size[0]
     perturbed = []
     z = img
-    avg = np.array(z).astype("uint8")
+    avg = np.array(z)/255.
     for i in range(1, 31):
         z = resized_center_crop(affine(img, angle=0, translate=(0, 0),
                                             scale=1+0.004*i, shear=0, resample=PILImage.BILINEAR), img_shape)
-        avg += np.array(z).astype("uint8")
-        perturbed.append(PILImage.fromarray((avg / (i + 1)).astype("uint8")))
+        avg += np.array(z)/255.
+        perturbed.append(PILImage.fromarray(np.uint8(255*(avg / (i + 1)))))
     return perturbed
 # /////////////// End Zoom Blur Code ///////////////
 
