@@ -94,7 +94,7 @@ def build_corruption_datasets(base_dataset, batch_size, expand_last_dim=False, f
 def build_corruption_datasets_(base_dataset, severity=1, expand_last_dim=False,  feature_shape=(28,28), each_size=1000):
     x_test_list = []
 
-    x_test = build_eval_helper(base_dataset, expand_last_dim,  feature_shape, each_size)
+    x_test = build_eval_helper(base_dataset, expand_last_dim, feature_shape=feature_shape,  each_size=each_size)
     x_test_list.append(x_test)
 
     corrupted = corrupt(x_test, severity)  # list of corrupted in-distribution samples
@@ -116,7 +116,7 @@ def build_perturbation_datasets(base_dataset, batch_size, expand_last_dim=False,
 def build_perturbation_datasets_(base_dataset, expand_last_dim=False, feature_shape=(28, 28), each_size=1000):
     x_test_list = []
 
-    x_test = build_eval_helper(base_dataset, expand_last_dim, feature_shape, each_size)
+    x_test = build_eval_helper(base_dataset, expand_last_dim, feature_shape=feature_shape,  each_size=each_size)
     x_test_list.append(x_test)
 
     perturbed = perturb(x_test)  # list of perturbed in-distribution samples

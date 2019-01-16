@@ -132,21 +132,7 @@ def gaussian_noise(img):
 def gaussian_noise1(x):
     perturbed = []
     for i in range(1, 31):
-        z = PILImage.fromarray(np.uint8(255 *np.clip(x + 0.025 *np.random.normal(size=x.shape), 0, 1)))
-        perturbed.append(z)
-    return perturbed
-
-def gaussian_noise2(x):
-    perturbed = []
-    for i in range(1, 31):
-        z = PILImage.fromarray(np.uint8(255 *np.clip(x + 0.05 * np.random.normal(size=x.shape), 0, 1)))
-        perturbed.append(z)
-    return perturbed
-
-def gaussian_noise3(x):
-    perturbed = []
-    for i in range(1, 31):
-        z = PILImage.fromarray(np.uint8(255 *np.clip(x + 0.075 * np.random.normal(size=x.shape), 0, 1)))
+        z = PILImage.fromarray(np.uint8(255 *np.clip(x + np.random.normal(size=x.shape, scale=0.025+(i/1000.)), 0, 1)))
         perturbed.append(z)
     return perturbed
 
@@ -164,25 +150,10 @@ def shot_noise1(x):
     for i in range(1, 31):
         z = np.array(x, copy=True) / 255.
         z = PILImage.fromarray(
-            np.uint8(255 * np.clip(np.random.poisson(z * 500) / 500., 0, 1)))
+            np.uint8(255 * np.clip(np.random.poisson(z * (500-5*i)) / (500.-5*i), 0, 1)))
         perturbed.append(z)
     return perturbed
-def shot_noise2(x):
-    perturbed = []
-    for i in range(1, 31):
-        z = np.array(x, copy=True) / 255.
-        z = PILImage.fromarray(
-            np.uint8(255 * np.clip(np.random.poisson(z * 250) / 250., 0, 1)))
-        perturbed.append(z)
-    return perturbed
-def shot_noise3(x):
-    perturbed = []
-    for i in range(1, 31):
-        z = np.array(x, copy=True) / 255.
-        z = PILImage.fromarray(
-            np.uint8(255 * np.clip(np.random.poisson(z * 125) / 125., 0, 1)))
-        perturbed.append(z)
-    return perturbed
+
 # /////////////// End Shot Noise Code ///////////////
 
 # /////////////// Motion Blur Code ///////////////
@@ -366,23 +337,7 @@ def speckle_noise1(x):
     perturbed = []
     for i in range(1, 31):
         z = PILImage.fromarray(
-            np.uint8(255 * np.clip(x + x * np.random.normal(size=x.shape, scale=0.05), 0, 1)))
-        perturbed.append(z)
-    return perturbed
-
-def speckle_noise2(x):
-    perturbed = []
-    for i in range(1, 31):
-        z = PILImage.fromarray(
-            np.uint8(255 * np.clip(x + x * np.random.normal(size=x.shape, scale=0.1), 0, 1)))
-        perturbed.append(z)
-    return perturbed
-
-def speckle_noise3(x):
-    perturbed = []
-    for i in range(1, 31):
-        z = PILImage.fromarray(
-            np.uint8(255 * np.clip(x + x * np.random.normal(size=x.shape, scale=0.15), 0, 1)))
+            np.uint8(255 * np.clip(x + x * np.random.normal(size=x.shape, scale=(0.05+(i/1000.))), 0, 1)))
         perturbed.append(z)
     return perturbed
 # /////////////// End Speckle Noise Code ///////////////
