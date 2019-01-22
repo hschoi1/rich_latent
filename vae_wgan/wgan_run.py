@@ -292,7 +292,6 @@ def next_feed_dict():
 
 
 
-#FLAGS.model_dir = 'gs://hyunsun/w_gan/mnist/model'
 
 ### TRAINING
 if not FLAGS.skip_train:
@@ -453,65 +452,3 @@ extra_trained = plot_analysis(results, datasets_names, keys, bins=None, each_siz
 # extra_trained is an array of AUROC of size (3, num of datasets (maybe including adversarial examples))
 # extra_trained[0] is the scores of datasets for single critic logit, [1] for ensmeble mean of the logits
 # [2] is for the ensemble variance of the logits
-
-
-
-# corrupt
-
-if (FLAGS.train_dataset == "mnist") or (FLAGS.train_dataset == "fashion_mnist"):
-    corrupt_data = build_corruption_datasets_(dataset_list[0], severity=1, expand_last_dim=True, feature_shape=(28,28), each_size=1000)
-elif FLAGS.train_dataset == "cifar10":
-    corrupt_data = build_corruption_datasets_(dataset_list[0], severity=1, expand_last_dim=False,  feature_shape=(32, 32, 3), each_size=1000)
-datasets_names = ['base_dataset', 'gaussian_noise_c', 'shot_noise_c', 'impulse_noise_c', 'defocus_blur_c',
-                       'glass_blur_c', 'motion_blur_c', 'zoom_blur_c', 'snow_c', 'frost_c', 'fog_c',
-                       'brightness_c', 'contrast_c', 'elastic_transform_c', 'pixelate_c', 'jpeg_compression_c',
-                       'speckle_noise_c', 'gaussian_blur_c', 'spatter_c', 'saturate_c']
-logits_list = []
-
-for model_num in range(5):
-    with tf.Session() as sess:
-        saver = tf.train.Saver()
-        saver.restore(sess, tf.train.latest_checkpoint(FLAGS.model_dir+str(model_num)+'/extra/'))
-        feed_dict = {features: corrupt_data}
-        fetch_dict = {'true_logit': true_logit}
-        fetched_results = sess.run(fetch_dict, feed_dict)
-        logits = fetched_results['true_logit']
-    logits_list.append(logits)
-
-logits_mean = np.mean(logits_list, axis=0)
-logits_var = np.var(logits_list, axis=0)
-waic = logits_mean - logits_var
-results = [logits_list[0], logits_mean, logits_var, waic]
-extra_trained = plot_analysis(results, datasets_names, keys, bins=None, each_size=1000)
-
-
-
-# perturb
-
-if (FLAGS.train_dataset == "mnist") or (FLAGS.train_dataset == "fashion_mnist"):
-    perturb_data = build_perturbation_datasets_(dataset_list[0], expand_last_dim=True, feature_shape=(28,28), each_size=1000)
-elif FLAGS.train_dataset == "cifar10":
-    perturb_data = build_perturbation_datasets_(dataset_list[0], expand_last_dim=False,  feature_shape=(32, 32, 3), each_size=1000)
-pertubation_names = ['gaussian_noise_p', 'shot_noise_p', 'motion_blur_p', 'zoom_blur_p', 'snow_p', 'brightness_p', 'translate_p',
-                       'rotate_p', 'tilt_p', 'scale_p', 'speckle_noise_p', 'gaussian_blur_p', 'spatter_p', 'shear_p']
-datasets_names = ['base_dataset']
-for perturbation_name in pertubation_names:
-    for severity in range(30):
-        datasets_names.append(perturbation_name+str(severity))  # attach severity info
-
-logits_list = []
-for model_num in range(5):
-    with tf.Session() as sess:
-        saver = tf.train.Saver()
-        saver.restore(sess, tf.train.latest_checkpoint(FLAGS.model_dir+str(model_num)+'/extra/'))
-        feed_dict = {features: perturb_data}
-        fetch_dict = {'true_logit': true_logit}
-        fetched_results = sess.run(fetch_dict, feed_dict)
-        logits = fetched_results['true_logit']
-    logits_list.append(logits)
-
-logits_mean = np.mean(logits_list, axis=0)
-logits_var = np.var(logits_list, axis=0)
-waic = logits_mean - logits_var
-results = [logits_list[0], logits_mean, logits_var, waic]
-extra_trained = plot_analysis(results, datasets_names, keys, bins=None, each_size=1000)

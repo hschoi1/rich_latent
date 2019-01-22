@@ -107,32 +107,18 @@ def main(argv):
                 #print("Evaluation_results:\n\t%s\n" % eval_results)
 
 
-    # plot values of variables defined in keys and plot them for each dataset
 
-    # keys are threshold variables
-    keys = ['elbo']
+
     compare_datasets = ['credit_card_normal', 'credit_card_anomalies', 'normal_noise', 'uniform_noise']
     # whether to noise each dataset or not
     noised_list = [False, False, False, False]
     # if the element in noised_list is true for a dataset then what kind of noise/transformations to apply?
     # if the above element is set False, any noise/transformation will not be processed.
-
     noise_type_list = ['normal', 'normal', 'normal', 'normal']
 
-    # whether to add adversarially perturbed noise
-    # if perturbed normal noise: normal, if perturbed uniform noise: uniform , if nothing: None
     show_adv_examples = None
-
-    # if there is a specific range to look at, add a tuple of (low, high, #of bins) for the value
-    bins = {'elbo': (-200, 0, 100)}
-
-    # out of the 5 models, which model to use for analysis
-    which_model = 0
     expand_last_dim = False
 
-    #single_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples, anomaly_model_fn,
-    #         FLAGS.model_dir, which_model,
-    #         which_model, keys, bins, feature_shape=(30,), each_size=492)
 
     #which model to use to create adversarially perturbed noise for ensemble analysis
     adv_base = 0

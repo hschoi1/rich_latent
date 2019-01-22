@@ -127,10 +127,8 @@ def main(argv):
             print("Evaluation_results:\n\t%s\n" % eval_results)
 
     
-    # plot values of variables defined in keys and plot them for each dataset
 
-    # keys are threshold variables for single_analysis
-    keys = ['elbo']
+
 
     # the first dataset in compare_datasets is the base distribution we use
     # to compare Out of distribution samples against. Should be the same as the training dataset
@@ -138,31 +136,20 @@ def main(argv):
         compare_datasets = ['mnist', 'omniglot', 'notMNIST', 'fashion_mnist', 'mnist', 'mnist',
                             'uniform_noise', 'normal_noise']
     elif FLAGS.train_dataset == "fashion_mnist":
-        # TMP
         compare_datasets = ['fashion_mnist', 'omniglot', 'notMNIST', 'mnist', 'fashion_mnist', 'fashion_mnist', 'uniform_noise',
                             'normal_noise']
-        #compare_datasets = ['fashion_mnist', 'mnist']
+
 
     # whether to noise each dataset or not
     noised_list = [False, False, False, False, True, True, False, False]
     # if the element in noised_list is true for a dataset then what kind of noise/transformations to apply?
     # if the above element is set False, any noise/transformation will not be processed.
-
     noise_type_list = ['normal', 'normal', 'normal', 'normal', 'hor_flip', 'ver_flip', 'normal', 'normal']
 
-    # whether to add adversarially perturbed noise
-    # if perturbed normal noise: normal, if perturbed uniform noise: uniform , if nothing: None
+    # add adversarially perturbed noise as OoD
     show_adv_examples = 'normal'
+    expand_last_dim = True
 
-    #if there is a specific range to look at, add a tuple of (low, high, #of bins) for the value
-    bins = {'elbo':(-2000,1000,300)}
-   
-    #out of the 5 models, which model to use for single analysis
-    which_model = 0
-    expand_last_dim = True  #for MNIST/FashionMNIST, True
-
-    #for single models
-    #single_analysis(compare_datasets, expand_last_dim, noised_list, noise_type_list, show_adv_examples, model_fn, FLAGS.model_dir, which_model, which_model, keys, bins)
 
     #which model to use to create adversarially perturbed noise for ensemble analysis
     adv_base = 0
@@ -170,12 +157,10 @@ def main(argv):
     # ensembles on OoD datasets
     ensemble_OoD(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size, model_fn, FLAGS.model_dir, show_adv_examples, adv_base, each_size=10000)
     # ensembles on corrupted indistribution
-    ensemble_corruptions(compare_datasets[0], expand_last_dim, noised_list, noise_type_list, model_fn, FLAGS.model_dir, each_size=1000)
+    #ensemble_corruptions(compare_datasets[0], expand_last_dim, noised_list, noise_type_list, model_fn, FLAGS.model_dir, each_size=1000)
     # ensembles on perturbed indistribution
-    ensemble_perturbations(compare_datasets[0], expand_last_dim, noised_list, noise_type_list, model_fn, FLAGS.model_dir, each_size=1000)
+    #ensemble_perturbations(compare_datasets[0], expand_last_dim, noised_list, noise_type_list, model_fn, FLAGS.model_dir, each_size=1000)
 
-    # history analysis
-    #history_compare_elbo(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size, model_fn, FLAGS.model_dir, show_adv_examples, adv_base)
 
 if __name__ == "__main__":
     tf.app.run()

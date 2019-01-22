@@ -219,8 +219,6 @@ def next_feed_dict():
     return feed_dict
 
 
-#FLAGS.model_dir = 'C:/Users/hyuns/Documents/study/dl_jeju/toy'
-
 ### TRAINING
 
 for model_num in range(4):
