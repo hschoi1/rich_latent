@@ -12,7 +12,7 @@ params = FLAGS.flag_values_dict()
 # restore ckpt from i th model in model_dir and calculate the values of keys
 def fetch(input_fn, model_fn, model_dir, keys,  i, checkpoint_step):
 
-    model_dir = model_dir + str(i)
+    model_dir = os.path.join(model_dir, str(i))
     print('Evaluating eval samples for %s' % model_dir)
     if checkpoint_step is None:
         checkpoint_path = tf.train.latest_checkpoint(model_dir)
@@ -119,7 +119,7 @@ def adversarial_ensemble_fetch(base, batch_size, model_fn, model_dir, keys, base
 
 # plot elbo for each dataset and also plot single elbo vs. ensemble variance
 def ensemble_OoD(datasets, expand_last_dim,  noised_list, noise_type_list, batch_size,
-                 model_fn, model_dir, show_adv, adv_base, feature_shape=(28,28), each_size=1000):
+                 model_fn, model_dir, show_adv, adv_base, feature_shape=(28,28), each_size=1000, model_indices=None):
     from tools.statistics import analysis_helper, name_helper, plot_analysis
     M = 5
 
@@ -133,8 +133,9 @@ def ensemble_OoD(datasets, expand_last_dim,  noised_list, noise_type_list, batch
     eval_iterator = tf.data.Dataset.from_tensor_slices(eval_dataset)
     eval_iterator = eval_iterator.batch(100)
     input_fn = lambda: eval_iterator.make_one_shot_iterator().get_next()
-
-    for i in range(M):
+    if model_indices is None:
+        model_indices = list(range(M))
+    for i in model_indices:
         single_results = analysis_helper(input_fn, converted_datasets, None, model_fn,model_dir, i, i, keys)
         single_elbo = single_results[0]
         ensemble_elbos.append(single_elbo)
@@ -169,7 +170,8 @@ def ensemble_OoD(datasets, expand_last_dim,  noised_list, noise_type_list, batch
         ensemble_results = [single_elbo]
 
 
-    plot_analysis(ensemble_results, datasets_names, ensemble_keys,  each_size=each_size)
+    plot_analysis(ensemble_results, datasets_names, ensemble_keys,  each_size=each_size, 
+                  suffix=''.join([str(x) for x in model_indices]))
 
     # sort imgs by WAIC values and show imgs of lowest/largest WAIC values across OoD datasets
     imgsort_by_values(eval_dataset[each_size:], WAIC[each_size:-2*each_size], 'overall_OoD')

@@ -87,11 +87,11 @@ flags.DEFINE_string(
     "train_dataset",
     default="mnist",
     help="mnist/fashion_mnist for VAE, mnist/fashion_mnist/cifar10 for wgan")
-
+flags.DEFINE_integer("num_models", default=5, help="number of models in ensemble.")
 
 def main(argv):
     del argv
-    M = 5  # number of models in ensemble
+    M = FLAGS.num_models  # number of models in ensemble
     for i in range(M):
         print('Running VAE experiment %d' % i)
         params = FLAGS.flag_values_dict()
@@ -99,7 +99,7 @@ def main(argv):
        
         from vae.model import model_fn
         #FLAGS.model_dir = os.path.join(FLAGS.model_dir, str(i))
-        model_dir = FLAGS.model_dir + str(i)
+        model_dir = os.path.join(FLAGS.model_dir,str(i))
 
         if FLAGS.delete_existing and tf.gfile.Exists(model_dir):
             tf.logging.warn("Deleting old log directory at {}".format(model_dir))
@@ -155,7 +155,15 @@ def main(argv):
     adv_base = 0
 
     # ensembles on OoD datasets
-    ensemble_OoD(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size, model_fn, FLAGS.model_dir, show_adv_examples, adv_base, each_size=10000)
+    # ensemble_OoD(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size, model_fn, FLAGS.model_dir, show_adv_examples, adv_base, each_size=10000)
+    
+    # Confidence Interval Evaluation via bootstrapping
+    for i in range(10):
+        model_indices = np.random.choice(FLAGS.num_models, size=5, replace=True)
+        ensemble_OoD(compare_datasets, expand_last_dim, noised_list, noise_type_list, FLAGS.batch_size, model_fn, FLAGS.model_dir, show_adv_examples, adv_base, each_size=10000, model_indices=model_indices)
+        
+    
+
     # ensembles on corrupted indistribution
     #ensemble_corruptions(compare_datasets[0], expand_last_dim, noised_list, noise_type_list, model_fn, FLAGS.model_dir, each_size=1000)
     # ensembles on perturbed indistribution

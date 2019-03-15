@@ -94,7 +94,7 @@ def analysis_helper(input_fn, compare_datasets, show_adv_examples, model_fn,  mo
 
     return results
 
-def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
+def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000, suffix=""):
     results = np.clip(results, -1e10, 1e10)
     num_dataset = len(datasets_names)
     scores = []
@@ -127,7 +127,8 @@ def plot_analysis(results, datasets_names, keys,  bins=None, each_size=1000):
 
         auroc_scores.append(auroc_scores_datasets)
 
-    with open(os.path.join(FLAGS.model_dir, 'scores.pkl'), 'wb') as file:
+    
+    with open(os.path.join(FLAGS.model_dir, 'scores' + suffix + '.pkl'), 'wb') as file:
         pickle.dump(scores, file) # scores of different threshold varaibles
 
     return auroc_scores
